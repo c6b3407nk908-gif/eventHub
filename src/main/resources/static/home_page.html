@@ -267,6 +267,14 @@
             const searchInput = document.getElementById('searchInput');
             if (searchInput) {
                 searchInput.addEventListener('input', renderEvents);
+                searchInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        const eventsGrid = document.getElementById('eventsGrid');
+                        if (eventsGrid) {
+                            eventsGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                    }
+                });
             }
 
             // Fetch events
