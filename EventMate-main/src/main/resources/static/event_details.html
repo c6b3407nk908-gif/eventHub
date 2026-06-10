@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en" class="antialiased">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EventHub - Event Details</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'media',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .dark ::-webkit-scrollbar-thumb { background: #475569; }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-300">
+
+    <header class="sticky top-0 z-50 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20 gap-4">
+                <!-- Logo -->
+                <div class="flex-shrink-0 flex items-center cursor-pointer" onclick="window.location.href='home_page.html'">
+                    <svg class="h-8 w-8 text-brand-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    <span class="ml-2 text-xl font-bold tracking-tight text-slate-900 dark:text-white">EventHub</span>
+                </div>
+                
+                <!-- Back Button -->
+                <button type="button" onclick="window.location.href='home_page.html'" class="text-sm font-medium text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors flex items-center">
+                    <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Back
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+        
+        <div id="loading" class="text-center py-20">
+            <svg class="animate-spin mx-auto h-8 w-8 text-brand-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <p class="mt-4 text-slate-500">Loading event details...</p>
+        </div>
+
+        <div id="error" class="hidden text-center py-20 text-red-500">
+            <h2 class="text-2xl font-bold mb-2">Event Not Found</h2>
+            <p>We couldn't load the event details.</p>
+            <button onclick="window.location.href='home_page.html'" class="mt-6 px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700">Go Home</button>
+        </div>
+
+        <div id="eventContent" class="hidden">
+            <!-- Hero Banner -->
+            <div class="w-full h-64 sm:h-80 md:h-96 rounded-3xl overflow-hidden relative mb-8 shadow-md group">
+                <img id="eventHeroImage" src="" alt="Event Banner" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent"></div>
+                <div class="absolute bottom-0 left-0 p-6 sm:p-10 w-full">
+                    <span id="eventCategory" class="inline-block px-3 py-1 bg-brand-600 text-white text-xs font-bold uppercase tracking-wider rounded-md mb-3 shadow-sm"></span>
+                    <span id="eventStatus" class="inline-block px-3 py-1 text-white text-xs font-bold uppercase tracking-wider rounded-md mb-3 shadow-sm ml-2"></span>
+                    <h1 id="eventTitle" class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight mb-2"></h1>
+                    <p id="eventSubtitle" class="text-slate-300 text-lg sm:text-xl max-w-3xl line-clamp-2"></p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <!-- Left Column: Details & Opportunities -->
+                <div class="lg:col-span-2 space-y-10">
+                    
+                    <!-- About Section -->
+                    <section class="bg-white dark:bg-slate-800 rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 dark:border-slate-700">
+                        <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-4">About this event</h2>
+                        <div id="eventDescription" class="prose prose-slate dark:prose-invert max-w-none text-slate-600 dark:text-slate-300 space-y-4 whitespace-pre-wrap leading-relaxed text-base">
+                        </div>
+
+                        <div class="mt-8 pt-8 border-t border-slate-100 dark:border-slate-700">
+                            <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Organized by</h3>
+                            <div class="flex items-center">
+                                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="Organizer" class="h-12 w-12 rounded-full border-2 border-slate-200 dark:border-slate-600">
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-slate-900 dark:text-white">EventHub Verified Creator</p>
+                                    <p class="text-sm text-slate-500 dark:text-slate-400">Trusted Host</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Opportunities Section: Jobs -->
+                    <section id="jobsSection" class="hidden bg-white dark:bg-slate-800 rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 dark:border-slate-700">
+                        <div class="flex items-center justify-between mb-6">
+                            <div>
+                                <h2 class="text-2xl font-bold text-slate-900 dark:text-white flex items-center">
+                                    <svg class="h-6 w-6 mr-2 text-brand-600 dark:text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 14h.01M9 14h.01" />
+                                    </svg>
+                                    We're Hiring!
+                                </h2>
+                                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Join the team and help make this event a success.</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4" id="jobList">
+                            <!-- Dynamically populated -->
+                        </div>
+                    </section>
+
+                    <!-- Opportunities Section: Sponsorships -->
+                    <section id="sponsorSection" class="hidden bg-white dark:bg-slate-800 rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 dark:border-slate-700">
+                        <div class="flex items-center justify-between mb-6">
+                            <div>
+                                <h2 class="text-2xl font-bold text-slate-900 dark:text-white flex items-center">
+                                    <svg class="h-6 w-6 mr-2 text-yellow-500 dark:text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                                    </svg>
+                                    Sponsorship Packages
+                                </h2>
+                                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Get your brand in front of thousands of attendees.</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="sponsorList">
+                            <!-- Dynamically populated -->
+                        </div>
+                    </section>
+
+                    <!-- Reviews & Ratings Section -->
+                    <section id="reviewsSection" class="bg-white dark:bg-slate-800 rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 dark:border-slate-700 space-y-6">
+                        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-4">
+                            <div>
+                                <h2 class="text-2xl font-bold text-slate-900 dark:text-white flex items-center">
+                                    <svg class="h-6 w-6 mr-2 text-yellow-500 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                    </svg>
+                                    Attendee Reviews
+                                </h2>
+                                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">What attendees thought of this event.</p>
+                            </div>
+                            <div class="text-right flex items-center gap-2 bg-slate-50 dark:bg-slate-900/40 px-3 py-1.5 rounded-xl border border-slate-100 dark:border-slate-800">
+                                <span id="avgRatingText" class="text-3xl font-extrabold text-slate-900 dark:text-white">0.0</span>
+                                <div class="flex flex-col items-end">
+                                    <div id="avgStars" class="flex text-yellow-400 text-xs"></div>
+                                    <span id="reviewsCountText" class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">0 reviews</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Review Form (Only for Completed Events) -->
+                        <div id="reviewFormContainer" class="hidden bg-slate-50 dark:bg-slate-900/50 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 space-y-4">
+                            <h3 class="text-lg font-bold text-slate-900 dark:text-white">Write a Review</h3>
+                            
+                            <form id="reviewForm" class="space-y-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Rating *</label>
+                                    <div class="flex items-center gap-1.5" id="starRatingSelect">
+                                        <button type="button" data-value="1" class="text-2xl text-slate-300 dark:text-slate-600 hover:scale-110 focus:outline-none transition-transform star-btn">★</button>
+                                        <button type="button" data-value="2" class="text-2xl text-slate-300 dark:text-slate-600 hover:scale-110 focus:outline-none transition-transform star-btn">★</button>
+                                        <button type="button" data-value="3" class="text-2xl text-slate-300 dark:text-slate-600 hover:scale-110 focus:outline-none transition-transform star-btn">★</button>
+                                        <button type="button" data-value="4" class="text-2xl text-slate-300 dark:text-slate-600 hover:scale-110 focus:outline-none transition-transform star-btn">★</button>
+                                        <button type="button" data-value="5" class="text-2xl text-slate-300 dark:text-slate-600 hover:scale-110 focus:outline-none transition-transform star-btn">★</button>
+                                    </div>
+                                    <input type="hidden" id="selectedRatingInput" name="rating" required value="0">
+                                </div>
+
+                                <div>
+                                    <label for="reviewComment" class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Your Review *</label>
+                                    <textarea id="reviewComment" name="comment" rows="3" required placeholder="Tell others how the event went..." class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none text-sm transition-colors"></textarea>
+                                </div>
+
+                                <div class="flex justify-end">
+                                    <button type="submit" id="submitReviewBtn" class="inline-flex justify-center items-center px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors focus:outline-none">
+                                        <span id="reviewBtnText">Post Review</span>
+                                        <svg id="reviewSpinner" class="hidden animate-spin ml-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <div id="reviewPrompt" class="hidden bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800 text-center text-sm text-slate-500 dark:text-slate-400">
+                        </div>
+
+                        <!-- Reviews List -->
+                        <div id="reviewsList" class="divide-y divide-slate-100 dark:divide-slate-700/80 space-y-4">
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Right Column: Sticky Quick Facts -->
+                <div class="lg:col-span-1">
+                    <div class="sticky top-28 bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
+                        
+                        <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-6">Quick Facts</h3>
+                        
+                        <div class="space-y-6">
+                            <!-- Date & Time -->
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 mt-1 bg-brand-50 dark:bg-brand-900/30 p-2 rounded-lg">
+                                    <svg class="h-6 w-6 text-brand-600 dark:text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-slate-900 dark:text-white">Date & Time</p>
+                                    <p id="eventDateTime" class="text-sm text-slate-500 dark:text-slate-400 mt-1"></p>
+                                </div>
+                            </div>
+
+                            <!-- Location -->
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 mt-1 bg-brand-50 dark:bg-brand-900/30 p-2 rounded-lg">
+                                    <svg class="h-6 w-6 text-brand-600 dark:text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-slate-900 dark:text-white">Location</p>
+                                    <p id="eventLocation" class="text-sm text-slate-500 dark:text-slate-400 mt-1"></p>
+                                    <a href="#" class="text-xs text-brand-600 dark:text-brand-400 hover:underline mt-1 inline-block">View Map</a>
+                                </div>
+                            </div>
+                        </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Job Application Modal -->
+    <div id="applyModal" class="fixed inset-0 z-[100] hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity opacity-0" id="applyBackdrop"></div>
+
+        <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+            <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <div id="applyPanel" class="relative transform overflow-hidden rounded-2xl bg-white dark:bg-slate-800 text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
+                    
+                    <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block">
+                        <button type="button" onclick="closeApplyModal()" class="rounded-md bg-white dark:bg-slate-800 text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 focus:outline-none">
+                            <span class="sr-only">Close</span>
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <form id="applyForm" class="p-6 sm:p-8">
+                        <div>
+                            <h3 class="text-xl font-bold leading-6 text-slate-900 dark:text-white" id="modal-title">Apply for Role</h3>
+                            <p class="mt-1 text-sm text-brand-600 dark:text-brand-400 font-medium" id="selectedRoleName">Role Name</p>
+                            <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Fill out your details below and the organizer will contact you soon.</p>
+                        </div>
+
+                        <div class="mt-6 space-y-4">
+                            <input type="hidden" id="jobRoleInput" name="jobRole">
+                            
+                            <div>
+                                <label for="applicantName" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Full Name</label>
+                                <input type="text" id="applicantName" required class="mt-1 block w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
+                            </div>
+                            
+                            <div>
+                                <label for="applicantEmail" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Email Address</label>
+                                <input type="email" id="applicantEmail" required class="mt-1 block w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
+                            </div>
+
+                            <div>
+                                <label for="applicantMessage" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Why are you a good fit?</label>
+                                <textarea id="applicantMessage" rows="3" class="mt-1 block w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-brand-500 focus:border-brand-500 sm:text-sm resize-none"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="mt-8 flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-3">
+                            <button type="button" onclick="closeApplyModal()" class="mt-3 sm:mt-0 w-full sm:w-auto inline-flex justify-center rounded-lg bg-white dark:bg-slate-700 px-4 py-2.5 text-sm font-semibold text-slate-900 dark:text-slate-200 shadow-sm ring-1 ring-inset ring-slate-300 dark:ring-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors">Cancel</button>
+                            <button type="submit" id="submitApplyBtn" class="w-full sm:w-auto inline-flex justify-center items-center rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-700 transition-colors">
+                                <span id="applyBtnText">Submit Application</span>
+                                <svg id="applySpinner" class="hidden animate-spin ml-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sponsorship Modal -->
+    <div id="sponsorModal" class="fixed inset-0 z-[100] hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity opacity-0" id="sponsorBackdrop"></div>
+
+        <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+            <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <div id="sponsorPanel" class="relative transform overflow-hidden rounded-2xl bg-white dark:bg-slate-800 text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
+                    
+                    <form id="sponsorForm" class="p-6 sm:p-8">
+                        <div>
+                            <h3 class="text-xl font-bold leading-6 text-slate-900 dark:text-white">Sponsorship Inquiry</h3>
+                            <p class="mt-1 text-sm text-yellow-600 dark:text-yellow-500 font-medium" id="selectedPackageName">Package Name</p>
+                        </div>
+
+                        <div class="mt-6 space-y-4">
+                            <input type="hidden" id="sponsorPackageInput" name="package">
+                            
+                            <div>
+                                <label for="companyName" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Company Name</label>
+                                <input type="text" id="companyName" required class="mt-1 block w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
+                            </div>
+                            
+                            <div>
+                                <label for="contactEmail" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Contact Email</label>
+                                <input type="email" id="contactEmail" required class="mt-1 block w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
+                            </div>
+                        </div>
+
+                        <div class="mt-8 flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-3">
+                            <button type="button" onclick="closeSponsorModal()" class="mt-3 sm:mt-0 w-full sm:w-auto inline-flex justify-center rounded-lg bg-white dark:bg-slate-700 px-4 py-2.5 text-sm font-semibold text-slate-900 dark:text-slate-200 shadow-sm ring-1 ring-inset ring-slate-300 dark:ring-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors">Cancel</button>
+                            <button type="submit" id="submitSponsorBtn" class="w-full sm:w-auto inline-flex justify-center items-center rounded-lg bg-yellow-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-yellow-600 transition-colors">
+                                <span id="sponsorBtnText">Send Inquiry</span>
+                                <svg id="sponsorSpinner" class="hidden animate-spin ml-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Toast Notification -->
+    <div id="toastNotification" class="fixed top-4 right-4 max-w-sm w-full bg-white dark:bg-slate-800 shadow-lg rounded-xl pointer-events-auto ring-1 ring-black ring-opacity-5 overflow-hidden transform translate-x-full opacity-0 transition-all duration-300 z-[120]">
+        <div class="p-4">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div class="ml-3 w-0 flex-1 pt-0.5">
+                    <p class="text-sm font-medium text-slate-900 dark:text-white" id="toastTitle">Success!</p>
+                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400" id="toastMsg">Action completed successfully.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "http://localhost:5000/api/events";
+        let currentEvent = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const eventId = params.get('id');
+            
+            if (!eventId) {
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('error').classList.remove('hidden');
+                return;
+            }
+
+            fetchEventDetails(eventId);
+
+            // Set up star rating selector
+            let selectedRating = 0;
+            const starButtons = document.querySelectorAll('.star-btn');
+            const ratingInput = document.getElementById('selectedRatingInput');
+            
+            starButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    selectedRating = parseInt(btn.dataset.value);
+                    ratingInput.value = selectedRating;
+                    updateStarsDisplay(selectedRating);
+                });
+                
+                btn.addEventListener('mouseover', () => {
+                    const hoverVal = parseInt(btn.dataset.value);
+                    updateStarsDisplay(hoverVal);
+                });
+                
+                btn.addEventListener('mouseout', () => {
+                    updateStarsDisplay(selectedRating);
+                });
+            });
+
+            function updateStarsDisplay(val) {
+                starButtons.forEach(star => {
+                    const starVal = parseInt(star.dataset.value);
+                    if (starVal <= val) {
+                        star.classList.add('text-yellow-400');
+                        star.classList.remove('text-slate-300', 'dark:text-slate-600');
+                    } else {
+                        star.classList.remove('text-yellow-400');
+                        star.classList.add('text-slate-300', 'dark:text-slate-600');
+                    }
+                });
+            }
+
+            // Set up form listeners
+            document.getElementById('applyForm').addEventListener('submit', handleApplyJob);
+            document.getElementById('sponsorForm').addEventListener('submit', handleApplySponsor);
+            document.getElementById('reviewForm').addEventListener('submit', handleReviewSubmit);
+        });
+
+        async function fetchEventDetails(id) {
+            try {
+                const response = await fetch(`${API_URL}/${id}`);
+                if (!response.ok) throw new Error('Event not found');
+                
+                const event = await response.json();
+                currentEvent = event;
+                
+                // Populate headers and text
+                document.getElementById('eventHeroImage').src = event.imageUrl || 'https://via.placeholder.com/800x400';
+                document.getElementById('eventTitle').textContent = event.eventName;
+                document.getElementById('eventCategory').textContent = event.eventType;
+
+                // Status badge
+                const statusSpan = document.getElementById('eventStatus');
+                statusSpan.textContent = event.status;
+                if (event.status === 'coming') {
+                    statusSpan.className = 'inline-block px-3 py-1 bg-emerald-600 text-white text-xs font-bold uppercase tracking-wider rounded-md mb-3 shadow-sm ml-2';
+                } else if (event.status === 'ongoing') {
+                    statusSpan.className = 'inline-block px-3 py-1 bg-blue-600 text-white text-xs font-bold uppercase tracking-wider rounded-md mb-3 shadow-sm ml-2 animate-pulse';
+                } else if (event.status === 'completed') {
+                    statusSpan.className = 'inline-block px-3 py-1 bg-slate-500 text-white text-xs font-bold uppercase tracking-wider rounded-md mb-3 shadow-sm ml-2';
+                }
+                
+                // Keep the first 100 chars as a subtitle, full as description
+                document.getElementById('eventSubtitle').textContent = event.description.length > 100 ? event.description.substring(0, 100) + '...' : event.description;
+                document.getElementById('eventDescription').textContent = event.description;
+                
+                // Quick facts
+                const date = new Date(event.eventDate);
+                document.getElementById('eventDateTime').innerHTML = `${date.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}<br>${event.eventTime}`;
+                document.getElementById('eventLocation').innerHTML = event.location;
+
+                // Handle opportunities toggles
+                if (event.jobVacancy && event.jobs && event.jobs.length > 0) {
+                    document.getElementById('jobsSection').classList.remove('hidden');
+                    const jobList = document.getElementById('jobList');
+                    jobList.innerHTML = '';
+                    event.jobs.forEach(job => {
+                        jobList.innerHTML += `
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-5 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-700 hover:border-brand-300 dark:hover:border-brand-700 transition-colors">
+                                <div class="mb-4 sm:mb-0 pr-4">
+                                    <h3 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+                                        ${job.roleTitle}
+                                        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300">${job.jobType}</span>
+                                    </h3>
+                                    <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">${job.roleDescription}</p>
+                                    <p class="text-sm font-medium text-slate-700 dark:text-slate-300 mt-2">Pay: ${job.compensation}</p>
+                                </div>
+                                <button onclick="openApplyModal('${job.roleTitle}')" class="flex-shrink-0 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium rounded-lg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 dark:focus:ring-offset-slate-850">
+                                    Apply Now
+                                </button>
+                            </div>
+                        `;
+                    });
+                }
+                
+                if (event.adsOpportunity && event.sponsorships && event.sponsorships.length > 0) {
+                    document.getElementById('sponsorSection').classList.remove('hidden');
+                    const sponsorList = document.getElementById('sponsorList');
+                    sponsorList.innerHTML = '';
+                    event.sponsorships.forEach(sponsor => {
+                        sponsorList.innerHTML += `
+                            <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 flex flex-col h-full hover:shadow-md transition-shadow">
+                                <div class="flex-grow">
+                                    <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2">${sponsor.packageName}</h3>
+                                    <p class="text-2xl font-extrabold text-brand-600 dark:text-brand-400 mb-4">₹${sponsor.packagePrice}</p>
+                                    <p class="mb-6 text-sm text-slate-600 dark:text-slate-300">${sponsor.packagePerks}</p>
+                                </div>
+                                <button onclick="openSponsorModal('${sponsor.packageName}')" class="w-full px-4 py-2.5 bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors focus:outline-none">
+                                    Become a Sponsor
+                                </button>
+                            </div>
+                        `;
+                    });
+                }
+
+                // Check review form visibility
+                const token = localStorage.getItem('token');
+                const userStr = localStorage.getItem('user');
+                const reviewFormContainer = document.getElementById('reviewFormContainer');
+                const reviewPrompt = document.getElementById('reviewPrompt');
+
+                if (event.status === 'completed') {
+                    if (token && userStr) {
+                        reviewFormContainer.classList.remove('hidden');
+                        reviewPrompt.classList.add('hidden');
+                    } else {
+                        reviewFormContainer.classList.add('hidden');
+                        reviewPrompt.classList.remove('hidden');
+                        reviewPrompt.innerHTML = 'This event has completed. <a href="login_page.html" class="text-brand-600 dark:text-brand-400 font-semibold hover:underline">Log in</a> to write a review.';
+                    }
+                } else {
+                    reviewFormContainer.classList.add('hidden');
+                    reviewPrompt.classList.remove('hidden');
+                    reviewPrompt.textContent = 'Reviews will be available once this event is completed.';
+                }
+
+                // Fetch existing reviews
+                fetchReviews(event.id);
+
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('eventContent').classList.remove('hidden');
+
+            } catch (error) {
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('error').classList.remove('hidden');
+                console.error(error);
+            }
+        }
+
+        // --- Modals Logic ---
+        function openApplyModal(roleName) {
+            document.getElementById('selectedRoleName').textContent = roleName;
+            document.getElementById('jobRoleInput').value = roleName;
+            
+            const modal = document.getElementById('applyModal');
+            const backdrop = document.getElementById('applyBackdrop');
+            const panel = document.getElementById('applyPanel');
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                backdrop.classList.add('opacity-100'); backdrop.classList.remove('opacity-0');
+                panel.classList.add('opacity-100', 'translate-y-0', 'sm:scale-100');
+                panel.classList.remove('opacity-0', 'translate-y-4', 'sm:translate-y-0', 'sm:scale-95');
+            }, 10);
+        }
+
+        function closeApplyModal() {
+            const modal = document.getElementById('applyModal');
+            const backdrop = document.getElementById('applyBackdrop');
+            const panel = document.getElementById('applyPanel');
+            
+            backdrop.classList.remove('opacity-100'); backdrop.classList.add('opacity-0');
+            panel.classList.remove('opacity-100', 'translate-y-0', 'sm:scale-100');
+            panel.classList.add('opacity-0', 'translate-y-4', 'sm:translate-y-0', 'sm:scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); }, 300);
+        }
+
+        function openSponsorModal(packageName) {
+            document.getElementById('selectedPackageName').textContent = packageName;
+            document.getElementById('sponsorPackageInput').value = packageName;
+            
+            const modal = document.getElementById('sponsorModal');
+            const backdrop = document.getElementById('sponsorBackdrop');
+            const panel = document.getElementById('sponsorPanel');
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                backdrop.classList.add('opacity-100'); backdrop.classList.remove('opacity-0');
+                panel.classList.add('opacity-100', 'translate-y-0', 'sm:scale-100');
+                panel.classList.remove('opacity-0', 'translate-y-4', 'sm:translate-y-0', 'sm:scale-95');
+            }, 10);
+        }
+
+        function closeSponsorModal() {
+            const modal = document.getElementById('sponsorModal');
+            const backdrop = document.getElementById('sponsorBackdrop');
+            const panel = document.getElementById('sponsorPanel');
+            
+            backdrop.classList.remove('opacity-100'); backdrop.classList.add('opacity-0');
+            panel.classList.remove('opacity-100', 'translate-y-0', 'sm:scale-100');
+            panel.classList.add('opacity-0', 'translate-y-4', 'sm:translate-y-0', 'sm:scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); }, 300);
+        }
+
+        // --- Fetch & Form Submission Logic ---
+        async function handleApplyJob(e) {
+            e.preventDefault();
+            if (!currentEvent) return;
+
+            const btnText = document.getElementById('applyBtnText');
+            const btnSpinner = document.getElementById('applySpinner');
+            const submitBtn = document.getElementById('submitApplyBtn');
+
+            submitBtn.disabled = true;
+            btnText.textContent = 'Submitting...';
+            btnSpinner.classList.remove('hidden');
+
+            const payload = {
+                eventId: currentEvent.id,
+                eventName: currentEvent.eventName,
+                organizerId: currentEvent.organizerId,
+                applicantName: document.getElementById('applicantName').value,
+                applicantEmail: document.getElementById('applicantEmail').value,
+                applicantPhone: "", // Not asked in form but available
+                type: "JOB",
+                roleOrPackageName: document.getElementById('jobRoleInput').value
+            };
+
+            try {
+                const res = await fetch('http://localhost:5000/api/applications', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) {
+                    handleSuccess(closeApplyModal, document.getElementById('applyForm'), submitBtn, btnText, btnSpinner, 'Submit Application', 'Application Sent!', 'The organizer will review your profile.');
+                } else {
+                    throw new Error("Failed to submit");
+                }
+            } catch (err) {
+                alert("Error submitting application");
+                submitBtn.disabled = false;
+                btnText.textContent = 'Submit Application';
+                btnSpinner.classList.add('hidden');
+            }
+        }
+
+        async function handleApplySponsor(e) {
+            e.preventDefault();
+            if (!currentEvent) return;
+
+            const btnText = document.getElementById('sponsorBtnText');
+            const btnSpinner = document.getElementById('sponsorSpinner');
+            const submitBtn = document.getElementById('submitSponsorBtn');
+
+            submitBtn.disabled = true;
+            btnText.textContent = 'Sending...';
+            btnSpinner.classList.remove('hidden');
+
+            const payload = {
+                eventId: currentEvent.id,
+                eventName: currentEvent.eventName,
+                organizerId: currentEvent.organizerId,
+                applicantName: document.getElementById('companyName').value,
+                applicantEmail: document.getElementById('contactEmail').value,
+                type: "SPONSOR",
+                roleOrPackageName: document.getElementById('sponsorPackageInput').value
+            };
+
+            try {
+                const res = await fetch('http://localhost:5000/api/applications', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) {
+                    handleSuccess(closeSponsorModal, document.getElementById('sponsorForm'), submitBtn, btnText, btnSpinner, 'Send Inquiry', 'Inquiry Sent!', 'We will get back to you with details.');
+                } else {
+                    throw new Error("Failed to submit");
+                }
+            } catch (err) {
+                alert("Error submitting inquiry");
+                submitBtn.disabled = false;
+                btnText.textContent = 'Send Inquiry';
+                btnSpinner.classList.add('hidden');
+            }
+        }
+
+        function handleSuccess(closeModalFn, form, btn, btnText, spinner, defaultBtnText, title, msg) {
+            btn.disabled = false;
+            btnText.textContent = defaultBtnText;
+            spinner.classList.add('hidden');
+            
+            closeModalFn();
+            form.reset();
+            
+            document.getElementById('toastTitle').textContent = title;
+            document.getElementById('toastMsg').textContent = msg;
+            showToast();
+        }
+
+        // --- Reviews & Ratings Logic ---
+        async function fetchReviews(eventId) {
+            try {
+                const response = await fetch(`http://localhost:5000/api/feedbacks/event/${eventId}`);
+                if (!response.ok) throw new Error('Failed to load reviews');
+                const reviews = await response.json();
+                renderReviews(reviews);
+            } catch (err) {
+                console.error("Error fetching reviews:", err);
+            }
+        }
+
+        function renderReviews(reviews) {
+            const reviewsList = document.getElementById('reviewsList');
+            reviewsList.innerHTML = '';
+            
+            let sum = 0;
+            reviews.forEach(r => sum += r.rating);
+            const avg = reviews.length > 0 ? (sum / reviews.length).toFixed(1) : "0.0";
+            document.getElementById('avgRatingText').textContent = avg;
+            document.getElementById('reviewsCountText').textContent = `${reviews.length} review${reviews.length === 1 ? '' : 's'}`;
+            
+            const avgStarsDiv = document.getElementById('avgStars');
+            avgStarsDiv.innerHTML = '';
+            const roundedAvg = Math.round(parseFloat(avg));
+            for (let i = 1; i <= 5; i++) {
+                if (i <= roundedAvg) {
+                    avgStarsDiv.innerHTML += '★';
+                } else {
+                    avgStarsDiv.innerHTML += '☆';
+                }
+            }
+
+            if (reviews.length === 0) {
+                reviewsList.innerHTML = `
+                    <div class="text-center py-6 text-slate-500 dark:text-slate-400 text-sm">
+                        No reviews yet. Be the first to share your experience!
+                    </div>
+                `;
+                return;
+            }
+
+            reviews.forEach(review => {
+                const dateStr = new Date(review.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+                let starsHTML = '';
+                for (let i = 1; i <= 5; i++) {
+                    if (i <= review.rating) {
+                        starsHTML += '<span class="text-yellow-400">★</span>';
+                    } else {
+                        starsHTML += '<span class="text-slate-300 dark:text-slate-600">★</span>';
+                    }
+                }
+                reviewsList.innerHTML += `
+                    <div class="py-4 first:pt-0">
+                        <div class="flex items-center justify-between mb-1">
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-sm text-slate-900 dark:text-white">${review.userName || 'Anonymous'}</span>
+                                <div class="flex text-xs">${starsHTML}</div>
+                            </div>
+                            <span class="text-xs text-slate-500 dark:text-slate-400">${dateStr}</span>
+                        </div>
+                        <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">${review.comment}</p>
+                    </div>
+                `;
+            });
+        }
+
+        async function handleReviewSubmit(e) {
+            e.preventDefault();
+            const ratingVal = parseInt(document.getElementById('selectedRatingInput').value);
+            const commentVal = document.getElementById('reviewComment').value.trim();
+            
+            if (ratingVal === 0) {
+                alert('Please select a rating of at least 1 star.');
+                return;
+            }
+
+            const btnText = document.getElementById('reviewBtnText');
+            const btnSpinner = document.getElementById('reviewSpinner');
+            const submitBtn = document.getElementById('submitReviewBtn');
+
+            submitBtn.disabled = true;
+            btnText.textContent = 'Posting...';
+            btnSpinner.classList.remove('hidden');
+
+            const user = JSON.parse(localStorage.getItem('user'));
+            const payload = {
+                eventId: currentEvent.id,
+                eventName: currentEvent.eventName,
+                userId: user.id,
+                userName: user.name,
+                rating: ratingVal,
+                comment: commentVal
+            };
+
+            try {
+                const response = await fetch('http://localhost:5000/api/feedbacks', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                if (response.ok) {
+                    document.getElementById('reviewForm').reset();
+                    document.getElementById('selectedRatingInput').value = 0;
+                    
+                    const starButtons = document.querySelectorAll('.star-btn');
+                    starButtons.forEach(star => {
+                        star.classList.remove('text-yellow-400');
+                        star.classList.add('text-slate-300', 'dark:text-slate-600');
+                    });
+                    
+                    document.getElementById('toastTitle').textContent = 'Review Posted!';
+                    document.getElementById('toastMsg').textContent = 'Thank you for your feedback.';
+                    showToast();
+                    
+                    fetchReviews(currentEvent.id);
+                } else {
+                    const errMsg = await response.text();
+                    alert(errMsg || 'Failed to post review');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Error submitting review');
+            } finally {
+                submitBtn.disabled = false;
+                btnText.textContent = 'Post Review';
+                btnSpinner.classList.add('hidden');
+            }
+        }
+
+        let toastTimeout;
+        function showToast() {
+            const toast = document.getElementById('toastNotification');
+            toast.classList.remove('translate-x-full', 'opacity-0');
+            toast.classList.add('translate-x-0', 'opacity-100');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('translate-x-0', 'opacity-100');
+                toast.classList.add('translate-x-full', 'opacity-0');
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
