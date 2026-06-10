@@ -12,12 +12,9 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
 import java.util.Map;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.Date;
 import java.util.List;
+import java.util.Base64;
 
 @RestController
 @RequestMapping("/api/events")
@@ -25,8 +22,6 @@ public class EventController {
 
     @Autowired
     private EventRepository eventRepository;
-
-    private final String UPLOAD_DIR = "uploads/";
 
     @GetMapping
     public ResponseEntity<List<Event>> getAllEvents(@RequestParam(value = "organizerId", required = false) String organizerId) {
@@ -65,23 +60,14 @@ public class EventController {
             event.setAdsOpportunity(adsOpportunity);
 
             if (image != null && !image.isEmpty()) {
-                Path uploadPath = Paths.get(UPLOAD_DIR);
-                if (!Files.exists(uploadPath)) {
-                    Files.createDirectories(uploadPath);
+                byte[] bytes = image.getBytes();
+                String base64Image = Base64.getEncoder().encodeToString(bytes);
+                String contentType = image.getContentType();
+                if (contentType == null) {
+                    contentType = "image/jpeg";
                 }
-
-                String originalFileName = StringUtils.cleanPath(image.getOriginalFilename());
-                String fileName = System.currentTimeMillis() + "_" + originalFileName;
-                Path filePath = uploadPath.resolve(fileName);
-                
-                Files.copy(image.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-                String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
-                        .path("/uploads/")
-                        .path(fileName)
-                        .toUriString();
-
-                event.setImageUrl(fileDownloadUri);
+                String dataUrl = "data:" + contentType + ";base64," + base64Image;
+                event.setImageUrl(dataUrl);
             }
 
             Event savedEvent = eventRepository.save(event);
@@ -126,17 +112,14 @@ public class EventController {
                 event.setAdsOpportunity(adsOpportunity);
 
                 if (image != null && !image.isEmpty()) {
-                    Path uploadPath = Paths.get(UPLOAD_DIR);
-                    if (!Files.exists(uploadPath)) {
-                        Files.createDirectories(uploadPath);
+                    byte[] bytes = image.getBytes();
+                    String base64Image = Base64.getEncoder().encodeToString(bytes);
+                    String contentType = image.getContentType();
+                    if (contentType == null) {
+                        contentType = "image/jpeg";
                     }
-                    String originalFileName = StringUtils.cleanPath(image.getOriginalFilename());
-                    String fileName = System.currentTimeMillis() + "_" + originalFileName;
-                    Path filePath = uploadPath.resolve(fileName);
-                    Files.copy(image.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-                    String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
-                            .path("/uploads/").path(fileName).toUriString();
-                    event.setImageUrl(fileDownloadUri);
+                    String dataUrl = "data:" + contentType + ";base64," + base64Image;
+                    event.setImageUrl(dataUrl);
                 }
 
                 Event updatedEvent = eventRepository.save(event);
@@ -155,6 +138,16 @@ public class EventController {
         eventRepository.deleteById(id);
         return ResponseEntity.ok().build();
     }
+
+    @PutMapping("/{id}/verify")
+    public ResponseEntity<?> verifyEvent(@PathVariable String id) {
+        return eventRepository.findById(id).map(event -> {
+            event.setVerified(!event.isVerified());
+            Event updatedEvent = eventRepository.save(event);
+            return ResponseEntity.ok(updatedEvent);
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
 
     @PostMapping("/{id}/opportunities")
     public ResponseEntity<?> addOpportunities(@PathVariable String id, @RequestBody Map<String, String> payload) {

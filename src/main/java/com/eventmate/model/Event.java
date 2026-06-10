@@ -21,6 +21,7 @@ public class Event {
     private String imageUrl;
     private boolean jobVacancy;
     private boolean adsOpportunity;
+    private boolean verified = false;
     private List<JobOpportunity> jobs = new ArrayList<>();
     private List<SponsorshipPackage> sponsorships = new ArrayList<>();
     private Date createdAt;
@@ -64,6 +65,9 @@ public class Event {
 
     public boolean isAdsOpportunity() { return adsOpportunity; }
     public void setAdsOpportunity(boolean adsOpportunity) { this.adsOpportunity = adsOpportunity; }
+
+    public boolean isVerified() { return verified; }
+    public void setVerified(boolean verified) { this.verified = verified; }
 
     public List<JobOpportunity> getJobs() { return jobs; }
     public void setJobs(List<JobOpportunity> jobs) { this.jobs = jobs; }
