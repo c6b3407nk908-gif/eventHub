@@ -266,9 +266,25 @@
 
             const searchInput = document.getElementById('searchInput');
             if (searchInput) {
-                searchInput.addEventListener('input', renderEvents);
+                let scrollTimeout;
+                
+                searchInput.addEventListener('input', () => {
+                    renderEvents();
+                    
+                    clearTimeout(scrollTimeout);
+                    if (searchInput.value.trim() !== '') {
+                        scrollTimeout = setTimeout(() => {
+                            const target = document.getElementById('trendingTitle');
+                            if (target) {
+                                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }
+                        }, 800);
+                    }
+                });
+
                 searchInput.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter') {
+                        clearTimeout(scrollTimeout);
                         const target = document.getElementById('trendingTitle');
                         if (target) {
                             target.scrollIntoView({ behavior: 'smooth', block: 'start' });
