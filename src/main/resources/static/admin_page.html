@@ -698,7 +698,7 @@
 
                 if (response.ok) {
                     showToast('Event verification status updated successfully.');
-                    loadDashboardData(); // Refresh list to show new verified state
+                    fetchData(); // Refresh list to show new verified state
                 } else {
                     showToast('Failed to update event verification status.', true);
                 }
