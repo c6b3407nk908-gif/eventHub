@@ -199,9 +199,9 @@
                             adminLinkHTML = `<a href="admin_page.html" class="text-sm font-medium text-brand-600 dark:text-brand-400 hover:text-brand-700 transition-colors">Admin</a>`;
                         }
                         
-                        if (user.profilePicture) {
+                        if (user.profilePictureUrl) {
                             const profileBtn = authContainer.querySelector('#profileLinkBtn');
-                            profileBtn.innerHTML = `<img src="${user.profilePicture}" alt="Profile" class="h-8 w-8 rounded-full object-cover ring-2 ring-white dark:ring-slate-900 shadow-sm">`;
+                            profileBtn.innerHTML = `<img src="${user.profilePictureUrl}" alt="Profile" class="h-8 w-8 rounded-full object-cover ring-2 ring-white dark:ring-slate-900 shadow-sm">`;
                         } else if (user.username) {
                             document.getElementById('userInitial').textContent = user.username.charAt(0).toUpperCase();
                         }
