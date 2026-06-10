@@ -612,6 +612,12 @@
             e.preventDefault();
             if (!currentEvent) return;
 
+            let userPhone = "";
+            const userStr = localStorage.getItem('user');
+            if (userStr) {
+                try { userPhone = JSON.parse(userStr).contact || ""; } catch(e) {}
+            }
+
             const btnText = document.getElementById('applyBtnText');
             const btnSpinner = document.getElementById('applySpinner');
             const submitBtn = document.getElementById('submitApplyBtn');
@@ -626,7 +632,8 @@
                 organizerId: currentEvent.organizerId,
                 applicantName: document.getElementById('applicantName').value,
                 applicantEmail: document.getElementById('applicantEmail').value,
-                applicantPhone: "", // Not asked in form but available
+                applicantPhone: userPhone,
+
                 type: "JOB",
                 roleOrPackageName: document.getElementById('jobRoleInput').value
             };
@@ -654,6 +661,12 @@
             e.preventDefault();
             if (!currentEvent) return;
 
+            let userPhone = "";
+            const userStr = localStorage.getItem('user');
+            if (userStr) {
+                try { userPhone = JSON.parse(userStr).contact || ""; } catch(e) {}
+            }
+
             const btnText = document.getElementById('sponsorBtnText');
             const btnSpinner = document.getElementById('sponsorSpinner');
             const submitBtn = document.getElementById('submitSponsorBtn');
@@ -668,6 +681,7 @@
                 organizerId: currentEvent.organizerId,
                 applicantName: document.getElementById('companyName').value,
                 applicantEmail: document.getElementById('contactEmail').value,
+                applicantPhone: userPhone,
                 type: "SPONSOR",
                 roleOrPackageName: document.getElementById('sponsorPackageInput').value
             };
