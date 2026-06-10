@@ -179,19 +179,13 @@
             if (token) {
                 // User is logged in
                 authContainer.innerHTML = `
-                    <div class="relative group">
-                        <button class="flex items-center space-x-2 p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus:outline-none">
+                    <div class="flex items-center space-x-4">
+                        <div id="adminLinkContainer"></div>
+                        <a href="profile_page.html" id="profileLinkBtn" class="flex items-center space-x-2 p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus:outline-none">
                             <div class="h-8 w-8 rounded-full bg-gradient-to-tr from-brand-500 to-indigo-500 flex items-center justify-center text-white font-bold text-sm shadow-sm ring-2 ring-white dark:ring-slate-900">
                                 <span id="userInitial">U</span>
                             </div>
-                        </button>
-                        <div class="absolute right-0 top-full pt-2 w-48 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                            <div class="rounded-md shadow-lg bg-white dark:bg-slate-800 ring-1 ring-black ring-opacity-5 py-1 overflow-hidden" id="profileDropdownMenu">
-                                <a href="profile_page.html" class="block px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">Your Profile</a>
-                                <div class="border-t border-slate-100 dark:border-slate-700 my-1"></div>
-                                <button onclick="logout()" class="block w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">Log out</button>
-                            </div>
-                        </div>
+                        </a>
                     </div>
                 `;
                 // Set initial
@@ -202,23 +196,24 @@
                         const user = JSON.parse(userStr);
                         
                         if (user.email === 'admin@gmail.com') {
-                            adminLinkHTML = `<a href="admin_page.html" class="block px-4 py-2 text-sm text-brand-600 dark:text-brand-400 font-medium hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">Admin Dashboard</a>`;
+                            adminLinkHTML = `<a href="admin_page.html" class="text-sm font-medium text-brand-600 dark:text-brand-400 hover:text-brand-700 transition-colors">Admin</a>`;
                         }
                         
                         if (user.profilePicture) {
-                            const profileBtn = authContainer.querySelector('button');
+                            const profileBtn = authContainer.querySelector('#profileLinkBtn');
                             profileBtn.innerHTML = `<img src="${user.profilePicture}" alt="Profile" class="h-8 w-8 rounded-full object-cover ring-2 ring-white dark:ring-slate-900 shadow-sm">`;
                         } else if (user.username) {
                             document.getElementById('userInitial').textContent = user.username.charAt(0).toUpperCase();
                         }
                         
                         if (adminLinkHTML) {
-                            const dropdownMenu = document.getElementById('profileDropdownMenu');
-                            dropdownMenu.insertAdjacentHTML('afterbegin', adminLinkHTML);
+                            const adminContainer = document.getElementById('adminLinkContainer');
+                            adminContainer.innerHTML = adminLinkHTML;
                         }
                     } catch (e) {}
                 }
             }
+
 
             // --- Location Logic ---
             const locationPillBtn = document.getElementById('locationPillBtn');
