@@ -544,6 +544,11 @@
 
         // --- Modals Logic ---
         function openApplyModal(roleName) {
+            if (!localStorage.getItem('token')) {
+                alert("Please log in to apply for this job.");
+                window.location.href = 'login_page.html';
+                return;
+            }
             document.getElementById('selectedRoleName').textContent = roleName;
             document.getElementById('jobRoleInput').value = roleName;
             
@@ -571,6 +576,11 @@
         }
 
         function openSponsorModal(packageName) {
+            if (!localStorage.getItem('token')) {
+                alert("Please log in to apply for this sponsorship.");
+                window.location.href = 'login_page.html';
+                return;
+            }
             document.getElementById('selectedPackageName').textContent = packageName;
             document.getElementById('sponsorPackageInput').value = packageName;
             
