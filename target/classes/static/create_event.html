@@ -273,6 +273,13 @@
                 return;
             }
 
+            const eventDateInput = document.getElementById('eventDate');
+            if (eventDateInput) {
+                const today = new Date().toISOString().split('T')[0];
+                eventDateInput.min = today;
+                eventDateInput.max = "9999-12-31";
+            }
+
             const form = document.getElementById('createEventForm');
             const fileInput = document.getElementById('file-upload');
             const fileNameDisplay = document.getElementById('file-name');
