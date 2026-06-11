@@ -5,14 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EventHub - Admin Control Grid</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Outfit', 'sans-serif'],
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
                     }
                 }
             }
@@ -30,16 +39,17 @@
     <!-- Simple Header (No Navigation Bar) -->
     <header class="h-20 bg-white border-b border-slate-200/80 flex items-center justify-between px-8 shadow-sm shadow-slate-100/40 sticky top-0 z-30 backdrop-blur-md">
         <div class="flex items-center gap-2 cursor-pointer" onclick="showGridMenu()">
-            <svg class="h-8 w-8 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h.01M16 20h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            <svg class="h-8 w-8 text-brand-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
-            <span class="text-2xl font-extrabold tracking-tight text-slate-900">
-                Event<span class="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">Hub</span>
-                <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100 ml-1">Admin Dashboard</span>
-            </span>
+            <span class="text-xl font-bold tracking-tight text-slate-900">EventHub</span>
+            <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-brand-50 text-brand-600 border border-brand-100 ml-2">Admin Dashboard</span>
         </div>
 
         <div class="flex items-center gap-4">
+            <a href="home_page.html" class="flex items-center px-4 py-2 border border-slate-200 hover:border-brand-200 text-xs font-bold text-slate-600 hover:text-brand-600 hover:bg-brand-50/50 rounded-full transition-all">
+                Home
+            </a>
             <button id="logoutBtn" class="flex items-center px-4 py-2 border border-slate-200 hover:border-rose-200 text-xs font-bold text-slate-600 hover:text-rose-600 hover:bg-rose-50/50 rounded-full transition-all">
                 Sign Out
             </button>
