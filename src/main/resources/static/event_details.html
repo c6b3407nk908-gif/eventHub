@@ -101,9 +101,9 @@
                         <div class="mt-8 pt-8 border-t border-slate-100 dark:border-slate-700">
                             <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Organized by</h3>
                             <div class="flex items-center">
-                                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="Organizer" class="h-12 w-12 rounded-full border-2 border-slate-200 dark:border-slate-600">
+                                <img id="organizerImageDisplay" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="Organizer" class="h-12 w-12 rounded-full border-2 border-slate-200 dark:border-slate-600 object-cover">
                                 <div class="ml-4">
-                                    <p class="text-sm font-medium text-slate-900 dark:text-white">EventHub Verified Creator</p>
+                                    <p id="organizerNameDisplay" class="text-sm font-medium text-slate-900 dark:text-white">Event Organizer</p>
                                     <p class="text-sm text-slate-500 dark:text-slate-400">Trusted Host</p>
                                 </div>
                             </div>
@@ -463,6 +463,22 @@
                 const date = new Date(event.eventDate);
                 document.getElementById('eventDateTime').innerHTML = `${date.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}<br>${event.eventTime}`;
                 document.getElementById('eventLocation').innerHTML = event.location;
+
+                // Fetch organizer details dynamically
+                try {
+                    const orgResponse = await fetch(`http://localhost:5000/api/users/${event.organizerId}`);
+                    if (orgResponse.ok) {
+                        const org = await orgResponse.json();
+                        document.getElementById('organizerNameDisplay').textContent = org.name || "Event Organizer";
+                        if (org.profilePictureUrl) {
+                            document.getElementById('organizerImageDisplay').src = org.profilePictureUrl;
+                        } else {
+                            document.getElementById('organizerImageDisplay').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(org.name || 'Organizer')}&background=random`;
+                        }
+                    }
+                } catch (e) {
+                    console.error("Failed to fetch organizer details", e);
+                }
 
                 // Handle opportunities toggles
                 if (event.jobVacancy && event.jobs && event.jobs.length > 0) {
