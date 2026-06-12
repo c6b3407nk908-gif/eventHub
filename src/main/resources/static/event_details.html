@@ -292,6 +292,11 @@
                             </div>
 
                             <div>
+                                <label for="applicantPhone" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Phone Number <span class="text-slate-400 font-normal">(for WhatsApp)</span></label>
+                                <input type="tel" id="applicantPhone" required pattern="\d{10}" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);" title="Please enter a 10-digit phone number" class="mt-1 block w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
+                            </div>
+
+                            <div>
                                 <label for="applicantMessage" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Why are you a good fit?</label>
                                 <textarea id="applicantMessage" rows="3" class="mt-1 block w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-brand-500 focus:border-brand-500 sm:text-sm resize-none"></textarea>
                             </div>
@@ -338,6 +343,11 @@
                             <div>
                                 <label for="contactEmail" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Contact Email</label>
                                 <input type="email" id="contactEmail" required class="mt-1 block w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
+                            </div>
+
+                            <div>
+                                <label for="sponsorPhone" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Contact Phone <span class="text-slate-400 font-normal">(for WhatsApp)</span></label>
+                                <input type="tel" id="sponsorPhone" required pattern="\d{10}" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);" title="Please enter a 10-digit phone number" class="mt-1 block w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-brand-500 focus:border-brand-500 sm:text-sm">
                             </div>
                         </div>
 
@@ -628,12 +638,6 @@
             e.preventDefault();
             if (!currentEvent) return;
 
-            let userPhone = "";
-            const userStr = localStorage.getItem('user');
-            if (userStr) {
-                try { userPhone = JSON.parse(userStr).contact || ""; } catch(e) {}
-            }
-
             const btnText = document.getElementById('applyBtnText');
             const btnSpinner = document.getElementById('applySpinner');
             const submitBtn = document.getElementById('submitApplyBtn');
@@ -648,7 +652,7 @@
                 organizerId: currentEvent.organizerId,
                 applicantName: document.getElementById('applicantName').value,
                 applicantEmail: document.getElementById('applicantEmail').value,
-                applicantPhone: userPhone,
+                applicantPhone: document.getElementById('applicantPhone').value,
 
                 type: "JOB",
                 roleOrPackageName: document.getElementById('jobRoleInput').value
@@ -677,12 +681,6 @@
             e.preventDefault();
             if (!currentEvent) return;
 
-            let userPhone = "";
-            const userStr = localStorage.getItem('user');
-            if (userStr) {
-                try { userPhone = JSON.parse(userStr).contact || ""; } catch(e) {}
-            }
-
             const btnText = document.getElementById('sponsorBtnText');
             const btnSpinner = document.getElementById('sponsorSpinner');
             const submitBtn = document.getElementById('submitSponsorBtn');
@@ -697,7 +695,7 @@
                 organizerId: currentEvent.organizerId,
                 applicantName: document.getElementById('companyName').value,
                 applicantEmail: document.getElementById('contactEmail').value,
-                applicantPhone: userPhone,
+                applicantPhone: document.getElementById('sponsorPhone').value,
                 type: "SPONSOR",
                 roleOrPackageName: document.getElementById('sponsorPackageInput').value
             };
