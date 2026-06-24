@@ -40,12 +40,14 @@ public class EventController {
 
     @GetMapping
     public ResponseEntity<PaginatedResponseDTO<EventResponseDTO>> getEvents(@ModelAttribute EventFilterRequestDTO request) {
+        request.setIsSearchRoute(false);
         PaginatedResponseDTO<EventResponseDTO> events = eventService.filterEvents(request);
         return ResponseEntity.ok(events);
     }
 
     @GetMapping("/search")
     public ResponseEntity<PaginatedResponseDTO<EventResponseDTO>> searchEvents(@ModelAttribute EventFilterRequestDTO request) {
+        request.setIsSearchRoute(true);
         PaginatedResponseDTO<EventResponseDTO> events = eventService.filterEvents(request);
         return ResponseEntity.ok(events);
     }
@@ -101,8 +103,17 @@ public class EventController {
     }
 
     @PutMapping("/{id}/verify")
-    public ResponseEntity<?> verifyEvent(@PathVariable String id) {
-        Event updatedEvent = eventService.verifyEvent(id);
+    public ResponseEntity<?> verifyEvent(@PathVariable String id, @RequestParam("status") String status) {
+        Event updatedEvent = eventService.verifyEvent(id, status);
+        return ResponseEntity.ok(updatedEvent);
+    }
+
+    @PostMapping("/{id}/apply-verification")
+    public ResponseEntity<?> applyVerification(
+            @PathVariable String id,
+            @RequestParam("certificate") MultipartFile certificate,
+            @AuthenticationPrincipal String userId) {
+        Event updatedEvent = eventService.applyVerification(id, certificate, userId);
         return ResponseEntity.ok(updatedEvent);
     }
 

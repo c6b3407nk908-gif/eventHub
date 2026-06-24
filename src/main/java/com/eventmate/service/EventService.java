@@ -19,7 +19,8 @@ public interface EventService {
     Event getEventById(String id);
     Event updateEvent(String id, String eventName, String category, String eventType, String description, Date eventDate, String eventTime, String location, boolean jobVacancy, boolean adsOpportunity, Date opportunitiesDeadline, MultipartFile image);
     void deleteEvent(String id);
-    Event verifyEvent(String id);
+    Event verifyEvent(String id, String status);
+    Event applyVerification(String id, MultipartFile certificate, String userId);
     void addOpportunities(String id, Map<String, String> payload);
     Event toggleInterest(String eventId, String userId);
 }

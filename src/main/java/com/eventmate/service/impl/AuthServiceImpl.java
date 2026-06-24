@@ -13,6 +13,8 @@ import com.eventmate.dto.response.VerificationResponseDTO;
 import com.eventmate.exception.EmailNotVerifiedException;
 import com.eventmate.service.AuthService;
 import com.eventmate.service.EmailService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +26,8 @@ import java.util.Random;
 
 @Service
 public class AuthServiceImpl implements AuthService {
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -178,19 +182,21 @@ public class AuthServiceImpl implements AuthService {
         if (request.getEmail() == null) {
             throw new BadRequestException("Email is required");
         }
-        Optional<User> userOpt = userRepository.findByEmail(request.getEmail().trim().toLowerCase());
+        String email = request.getEmail().trim().toLowerCase();
+        Optional<User> userOpt = userRepository.findByEmail(email);
         
         // Always return the same message to prevent email enumeration
         Map<String, Object> response = new HashMap<>();
-        response.put("message", "If an account exists for this email, an OTP has been sent.");
+        response.put("message", "OTP has been sent to your email address.");
+        
+        logger.info("Password reset requested for email: {}", email);
         
         if (userOpt.isPresent()) {
             User user = userOpt.get();
             
             // Rate limiting: 60-second cooldown
             if (user.getLastOtpRequestTime() != null && user.getLastOtpRequestTime().plusSeconds(60).isAfter(LocalDateTime.now())) {
-                // Return success to avoid leaking info, or optionally throw an exception if you prefer strict rate-limiting errors.
-                // We'll throw an exception here so the frontend can show a cooldown.
+                logger.warn("Password reset rate limit hit for email: {}", email);
                 throw new BadRequestException("Please wait 60 seconds before requesting another OTP.");
             }
             
@@ -203,6 +209,9 @@ public class AuthServiceImpl implements AuthService {
             userRepository.save(user);
             
             emailService.sendPasswordResetOtpEmail(user.getEmail(), otp);
+            logger.info("Password reset OTP generated and sent to email: {}", email);
+        } else {
+            logger.warn("Password reset requested for non-existent email: {}", email);
         }
         
         return response;
@@ -210,27 +219,39 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public Map<String, Object> verifyPasswordResetOtp(com.eventmate.dto.request.VerifyOtpRequestDTO request) {
-        Optional<User> userOpt = userRepository.findByEmail(request.getEmail().trim().toLowerCase());
+        String email = request.getEmail().trim().toLowerCase();
+        Optional<User> userOpt = userRepository.findByEmail(email);
         
         if (userOpt.isEmpty()) {
+            logger.warn("Password reset OTP verification failed: User not found for email: {}", email);
             throw new BadRequestException("Invalid email or OTP.");
         }
         
         User user = userOpt.get();
         
         if (user.getPasswordResetToken() == null || user.getPasswordResetTokenExpiry() == null || user.getPasswordResetTokenExpiry().isBefore(LocalDateTime.now())) {
+            logger.warn("Password reset OTP verification failed: Invalid or expired OTP for email: {}", email);
             throw new BadRequestException("OTP is invalid or has expired.");
         }
         
         if (user.getPasswordResetAttempts() >= 5) {
-            user.setPasswordResetToken(null);
-            user.setPasswordResetTokenExpiry(null);
-            userRepository.save(user);
+            logger.warn("Password reset OTP verification blocked: Max attempts reached for email: {}", email);
             throw new BadRequestException("Too many invalid attempts. Please request a new OTP.");
         }
         
         if (!user.getPasswordResetToken().equals(request.getOtp())) {
-            user.setPasswordResetAttempts(user.getPasswordResetAttempts() + 1);
+            int newAttempts = user.getPasswordResetAttempts() + 1;
+            user.setPasswordResetAttempts(newAttempts);
+            logger.warn("Password reset OTP verification failed for email: {}. Attempt: {}", email, newAttempts);
+            
+            if (newAttempts >= 5) {
+                user.setPasswordResetToken(null);
+                user.setPasswordResetTokenExpiry(null);
+                userRepository.save(user);
+                logger.warn("Password reset OTP verification locked out: Email: {}", email);
+                throw new BadRequestException("Too many invalid attempts. Please request a new OTP.");
+            }
+            
             userRepository.save(user);
             throw new BadRequestException("Invalid OTP.");
         }
@@ -242,6 +263,8 @@ public class AuthServiceImpl implements AuthService {
         user.setPasswordResetTokenExpiry(LocalDateTime.now().plusMinutes(15)); // Give them 15 mins to reset password
         user.setPasswordResetAttempts(0);
         userRepository.save(user);
+        
+        logger.info("Password reset OTP verified successfully for email: {}", email);
         
         Map<String, Object> response = new HashMap<>();
         response.put("message", "OTP verified successfully.");
@@ -259,24 +282,28 @@ public class AuthServiceImpl implements AuthService {
         }
         
         // Password strength validation
-        String pwdRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$";
+        String pwdRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&]).{8,}$";
         if (!request.getNewPassword().matches(pwdRegex)) {
             throw new BadRequestException("Password does not meet security requirements.");
         }
 
-        Optional<User> userOpt = userRepository.findByEmail(request.getEmail().trim().toLowerCase());
+        String email = request.getEmail().trim().toLowerCase();
+        Optional<User> userOpt = userRepository.findByEmail(email);
         
         if (userOpt.isEmpty()) {
+            logger.warn("Password reset failed: User not found for email: {}", email);
             throw new BadRequestException("Invalid request.");
         }
         
         User user = userOpt.get();
         
         if (user.getApprovedResetToken() == null || !user.getApprovedResetToken().equals(request.getToken())) {
+            logger.warn("Password reset failed: Invalid reset token for email: {}", email);
             throw new BadRequestException("Invalid or unauthorized reset token.");
         }
         
         if (user.getPasswordResetTokenExpiry() == null || user.getPasswordResetTokenExpiry().isBefore(LocalDateTime.now())) {
+            logger.warn("Password reset failed: Token expired for email: {}", email);
             throw new BadRequestException("Reset session has expired. Please verify OTP again.");
         }
         
@@ -286,8 +313,10 @@ public class AuthServiceImpl implements AuthService {
         
         userRepository.save(user);
         
+        logger.info("Password successfully reset for email: {}", email);
+        
         Map<String, Object> response = new HashMap<>();
-        response.put("message", "Password has been successfully reset. You may now log in with your new password.");
+        response.put("message", "Your password has been successfully changed. Please sign in with your new password.");
         return response;
     }
 

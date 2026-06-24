@@ -52,6 +52,9 @@ public class Event {
     @Indexed
     private Date createdAt;
 
+    private String verificationCertificateUrl;
+    private String verificationStatus = "NOT_APPLIED";
+
     public Event() {
         this.createdAt = new Date();
     }
@@ -112,6 +115,12 @@ public class Event {
 
     public List<String> getInterestedUserIds() { return interestedUserIds; }
     public void setInterestedUserIds(List<String> interestedUserIds) { this.interestedUserIds = interestedUserIds; }
+
+    public String getVerificationCertificateUrl() { return verificationCertificateUrl; }
+    public void setVerificationCertificateUrl(String verificationCertificateUrl) { this.verificationCertificateUrl = verificationCertificateUrl; }
+
+    public String getVerificationStatus() { return verificationStatus; }
+    public void setVerificationStatus(String verificationStatus) { this.verificationStatus = verificationStatus; }
 
     public String getStatus() {
         if (this.eventDate == null) return "coming";

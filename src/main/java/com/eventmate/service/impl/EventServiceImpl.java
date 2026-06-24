@@ -179,10 +179,38 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Event verifyEvent(String id) {
+    public Event verifyEvent(String id, String status) {
         Event event = getEventById(id);
-        event.setVerified(!event.isVerified());
+        if ("APPROVED".equalsIgnoreCase(status)) {
+            event.setVerified(true);
+            event.setVerificationStatus("APPROVED");
+        } else if ("REJECTED".equalsIgnoreCase(status)) {
+            event.setVerified(false);
+            event.setVerificationStatus("REJECTED");
+        } else {
+            throw new BadRequestException("Invalid verification status: " + status);
+        }
         return eventRepository.save(event);
+    }
+
+    @Override
+    public Event applyVerification(String id, MultipartFile certificate, String userId) {
+        Event event = getEventById(id);
+        if (event.getOrganizerId() == null || !event.getOrganizerId().equals(userId)) {
+            throw new BadRequestException("Only the event organizer can apply for verification.");
+        }
+        if (certificate == null || certificate.isEmpty()) {
+            throw new BadRequestException("Certificate file is required.");
+        }
+        try {
+            String certificateUrl = imageStorageService.upload(certificate);
+            event.setVerificationCertificateUrl(certificateUrl);
+            event.setVerificationStatus("PENDING");
+            event.setVerified(false);
+            return eventRepository.save(event);
+        } catch (IOException e) {
+            throw new BadRequestException("Failed to upload verification certificate.");
+        }
     }
 
     @Override

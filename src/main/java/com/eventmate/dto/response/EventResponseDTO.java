@@ -26,6 +26,8 @@ public class EventResponseDTO {
     private int interestCount;
     private Date createdAt;
     private String status;
+    private String verificationCertificateUrl;
+    private String verificationStatus;
 
     public EventResponseDTO() {}
 
@@ -49,6 +51,8 @@ public class EventResponseDTO {
         this.interestCount = event.getInterestCount();
         this.createdAt = event.getCreatedAt();
         this.status = event.getStatus();
+        this.verificationCertificateUrl = event.getVerificationCertificateUrl();
+        this.verificationStatus = event.getVerificationStatus();
     }
 
     public String getId() { return id; }
@@ -107,4 +111,10 @@ public class EventResponseDTO {
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    public String getVerificationCertificateUrl() { return verificationCertificateUrl; }
+    public void setVerificationCertificateUrl(String verificationCertificateUrl) { this.verificationCertificateUrl = verificationCertificateUrl; }
+
+    public String getVerificationStatus() { return verificationStatus; }
+    public void setVerificationStatus(String verificationStatus) { this.verificationStatus = verificationStatus; }
 }

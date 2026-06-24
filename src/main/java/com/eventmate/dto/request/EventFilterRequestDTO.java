@@ -30,8 +30,12 @@ public class EventFilterRequestDTO {
     private Date endDate;
     
     private Boolean upcoming;
+    private Boolean isSearchRoute;
 
     // Getters and Setters
+    public Boolean getIsSearchRoute() { return isSearchRoute; }
+    public void setIsSearchRoute(Boolean isSearchRoute) { this.isSearchRoute = isSearchRoute; }
+
     public int getPage() { return page; }
     public void setPage(int page) { this.page = page; }
 

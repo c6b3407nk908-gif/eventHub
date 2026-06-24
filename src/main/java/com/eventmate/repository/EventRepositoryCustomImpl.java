@@ -82,6 +82,15 @@ public class EventRepositoryCustomImpl implements EventRepositoryCustom {
 
         if (Boolean.TRUE.equals(request.getUpcoming())) {
             query.addCriteria(Criteria.where("eventDate").gte(new Date()));
+        } else if (Boolean.TRUE.equals(request.getIsSearchRoute()) && (request.getOrganizerId() == null || request.getOrganizerId().trim().isEmpty())) {
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.DAY_OF_YEAR, -2);
+            cal.set(Calendar.HOUR_OF_DAY, 0);
+            cal.set(Calendar.MINUTE, 0);
+            cal.set(Calendar.SECOND, 0);
+            cal.set(Calendar.MILLISECOND, 0);
+            Date limitDate = cal.getTime();
+            query.addCriteria(Criteria.where("eventDate").gte(limitDate));
         }
 
         long total = mongoTemplate.count(query, Event.class);
