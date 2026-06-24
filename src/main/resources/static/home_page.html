@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en" class="antialiased">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>EventHub - Home</title>
+ <script src="https://cdn.tailwindcss.com"></script>
+ <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
+ <script>
+ tailwind.config = {
+ theme: {
+ extend: {
+ fontFamily: {
+ display: ['"Bricolage Grotesque"', 'sans-serif'],
+ body: ['"DM Sans"', 'sans-serif'],
+ mono: ['"Courier Prime"', 'monospace'],
+ },
+ colors: {
+ background: '#fdf9f4',
+ surface: '#ffffff',
+ 'surface-variant': '#e6e2dd',
+ primary: '#a7332d',
+ 'primary-container': '#c84b43',
+ secondary: '#456274',
+ tertiary: '#7b550a',
+ ink: '#1c1c19',
+ 'on-background': '#1c1c19',
+ 'on-surface-variant': '#58413f'
+ },
+ boxShadow: {
+ 'retro': '4px 4px 0px #1c1c19',
+ 'retro-hover': '2px 2px 0px #1c1c19',
+ 'retro-sm': '2px 2px 0px #1c1c19',
+ }
+ }
+ }
+ }
+ </script>
+ <style>
+ body { font-family: 'DM Sans', sans-serif; background-color: #fdf9f4; color: #1c1c19; }
+ h1, h2, h3, h4, h5, h6 { font-family: 'Bricolage Grotesque', sans-serif; }
+ .label-stamp { font-family: 'Courier Prime', monospace; text-transform: uppercase; letter-spacing: 0.05em; font-weight: bold; }
+ .btn-retro { border: 3px solid #1c1c19; box-shadow: 4px 4px 0px #1c1c19; transition: all 0.1s ease; }
+ .btn-retro:hover { transform: translate(2px, 2px); box-shadow: 2px 2px 0px #1c1c19; }
+ .btn-retro:active { transform: translate(4px, 4px); box-shadow: none; }
+ .card-retro { border: 3px solid #1c1c19; box-shadow: 4px 4px 0px #1c1c19; transition: all 0.2s ease; }
+ .card-retro:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0px #1c1c19; }
+ .input-retro { border: 3px solid #1c1c19; background-color: #ffffff; }
+ .input-retro:focus { outline: none; box-shadow: 4px 4px 0px #c84b43; }
+ 
+ /* Scrollbar */
+ ::-webkit-scrollbar { width: 12px; border-left: 3px solid #1c1c19; }
+ ::-webkit-scrollbar-track { background: #fdf9f4; }
+ ::-webkit-scrollbar-thumb { background: #1c1c19; border: 2px solid #fdf9f4; }
+ </style>
+</head>
+<body class="bg-transparent text-on-background min-h-screen transition-colors duration-300 flex flex-col relative">
+ <!-- Fixed Full-Page Background -->
+ <div class="fixed inset-0 z-[-1]">
+ <img src="/images/vintage_hero.png" alt="Vintage Carnival" class="w-full h-full object-cover">
+ <div class="absolute inset-0 bg-[#fdf9f4]/90"></div>
+ </div>
+
+ <!-- Top Menu Bar -->
+ <header class="sticky top-0 z-50 bg-surface border-b border-ink border-[3px] shadow-retro">
+ <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+ <div class="flex justify-between items-center h-20 gap-4">
+ 
+ <!-- Logo -->
+ <div class="flex-shrink-0 flex items-center cursor-pointer" onclick="window.location.href='#'">
+ <svg class="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+ </svg>
+ <span class="ml-2 text-xl font-bold tracking-tight text-on-background">EventHub</span>
+ </div>
+
+ <!-- Search Bar -->
+ <div class="flex-1 max-w-lg hidden md:block">
+ <div class="relative w-full max-w-lg hidden md:block group">
+ <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+ <svg class="h-5 w-5 text-slate-400 group-focus-within:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+ </svg>
+ </div>
+ <input type="text" id="searchInput" class="block w-full pl-10 pr-20 py-2.5 border border-ink border-[3px] rounded-full leading-5 bg-background text-on-background placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-brand-500 sm:text-sm transition-all duration-200 input-retro rounded-lg " placeholder="Search for events, artists, or venues...">
+ <div class="absolute inset-y-0 right-0 pr-2 flex items-center space-x-1">
+ <button id="clearSearchBtn" class="p-1 rounded-full text-slate-400 hover:text-on-surface-variant hidden transition-colors" title="Clear search">
+ <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+ </button>
+ <button id="advancedSearchBtn" class="p-1.5 rounded-full text-slate-400 hover:text-primary bg-surface shadow-retro border border-ink border-[3px] transition-colors" title="Advanced Search Filters">
+ <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" /></svg>
+ </button>
+ </div>
+ </div>
+ </div>
+
+
+
+ <!-- Action Buttons: Events, Location & Login -->
+ <div class="flex items-center space-x-3 sm:space-x-4">
+ <!-- Events Dropdown -->
+ <div class="relative group">
+ <button class="inline-flex items-center text-sm font-medium text-on-surface-variant hover:text-primary transition-colors cursor-pointer py-2">
+ Manage Events
+ <svg class="ml-1 h-4 w-4 transition-transform group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+ </svg>
+ </button>
+ 
+ <!-- Dropdown menu (using group-hover to display) -->
+  <div class="absolute right-0 top-full pt-2 w-48 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+  <div class="rounded-md shadow-retro bg-surface ring-1 ring-black ring-opacity-5 overflow-hidden">
+  <a href="javascript:void(0)" onclick="handleProtectedLinkClick(event, 'create_event.html', 'Create an Event', 'You must be signed in to create an event.')" class="block px-4 py-3 btn-retro  text-sm text-slate-700 hover:bg-background border-b border-slate-100 transition-colors">Create Event</a>
+  <a href="javascript:void(0)" onclick="handleProtectedLinkClick(event, 'profile_page.html', 'View My Events', 'You must be signed in to view your profile and saved events.')" class="block px-4 py-3 btn-retro  text-sm text-slate-700 hover:bg-background transition-colors">View My Events</a>
+  </div>
+  </div>
+ </div>
+
+ <!-- Location Button -->
+ <button id="locationPillBtn" class="hidden sm:flex items-center text-sm font-medium text-on-surface-variant hover:text-primary transition-colors bg-slate-100 px-3 py-2 btn-retro  rounded-lg">
+ <svg class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+ <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+ </svg>
+ <span id="locationPillText" class="truncate max-w-[120px]">Athirampuzha</span>
+ </button>
+
+ <!-- Auth Container -->
+ <div id="authContainer">
+ <button onclick="window.location.href='login_page.html'" class="inline-flex items-center justify-center px-5 py-2.5 border border-transparent text-sm font-medium rounded-lg text-white bg-primary btn-retro hover:bg-primary shadow-retro focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors">
+ Log in
+ </button>
+ </div>
+ </div>
+ </div>
+ </div>
+ </header>
+
+ <main class="flex-grow">
+ <!-- Hero Section -->
+ <div class="relative overflow-hidden border-b border-ink border-[3px]">
+ <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32">
+ <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-on-background tracking-tight mb-6 max-w-3xl drop-shadow-md">
+ Discover the best events happening near you.
+ </h1>
+  <p class="mt-4 max-w-2xl text-xl text-on-background font-bold mb-10 drop-shadow-md">
+  Whether it's a college fest, arts festival, sports tournament, or community program, discover unforgettable experiences near you.
+  </p>
+ </div>
+ </div>
+
+ <!-- Featured Events Section -->
+ <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 btn-retro ">
+ <div class="flex justify-between items-end mb-8">
+ <div>
+ <h2 id="trendingTitle" class="text-2xl font-bold tracking-tight text-on-background">Trending in Athirampuzha</h2>
+ <p class="text-on-surface-variant mt-1">Events people are loving right now</p>
+ <div id="eventsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+ <div class="col-span-full text-center py-10 text-on-surface-variant">
+ Loading events...
+ </div>
+ </div>
+ 
+ <!-- Pagination Controls -->
+ <div id="paginationControls" class="flex flex-col sm:flex-row items-center justify-between border-t border-ink border-[3px] pt-6 mt-8 hidden">
+ <div class="text-sm text-on-surface-variant mb-4 sm:mb-0" id="paginationInfo">
+ Showing <span class="font-medium text-on-background" id="pageStart">0</span> to <span class="font-medium text-on-background" id="pageEnd">0</span> of <span class="font-medium text-on-background" id="totalElements">0</span> events
+ </div>
+ <div class="flex items-center space-x-2">
+ <button id="prevPageBtn" class="px-4 py-2 btn-retro  border border-ink border-[3px] rounded-lg text-sm font-medium text-slate-700 bg-surface hover:bg-background disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+ Previous
+ </button>
+ <div id="pageNumbers" class="flex space-x-1 hidden sm:flex"></div>
+ <button id="nextPageBtn" class="px-4 py-2 btn-retro  border border-ink border-[3px] rounded-lg text-sm font-medium text-slate-700 bg-surface hover:bg-background disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+ Next
+ </button>
+ </div>
+ </div>
+ </div>
+ </main>
+
+ <!-- Location Modal -->
+ <div id="locationModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[100] hidden flex items-center justify-center transition-opacity">
+ <div class="bg-surface rounded-xl w-full max-w-md p-6 shadow-2xl mx-4 border border-ink border-[3px]">
+ <h3 class="text-xl font-bold text-on-background mb-4 flex items-center">
+ <svg class="h-5 w-5 mr-2 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+ </svg>
+ Choose your location
+ </h3>
+ <select id="locationInput" class="block w-full px-4 py-3 btn-retro  border border-ink border-[3px] rounded-lg bg-background text-on-background focus:outline-none focus:ring-2 focus:ring-primary mb-6 appearance-none cursor-pointer">
+ <option value="" disabled selected>Select a location...</option>
+ </select>
+ <div class="flex justify-end gap-3">
+ <button type="button" id="closeLocationModal" class="px-4 py-2 btn-retro  text-on-surface-variant hover:text-slate-800 font-medium transition-colors">Cancel</button>
+ <button type="button" id="saveLocationBtn" class="px-5 py-2 bg-primary btn-retro text-white rounded-lg hover:bg-primary font-medium shadow-retro transition-colors">Apply</button>
+ </div>
+ </div>
+ </div>
+
+ <!-- Advanced Search Modal -->
+ <div id="advancedSearchModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[100] hidden flex items-center justify-center transition-opacity">
+ <div class="bg-surface rounded-xl w-full max-w-md p-6 shadow-2xl mx-4 border border-ink border-[3px]">
+ <h3 class="text-xl font-bold text-on-background mb-4 flex items-center">
+ <svg class="h-5 w-5 mr-2 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" /></svg>
+ Advanced Search
+ </h3>
+ 
+ <div class="space-y-4 mb-6">
+ <div>
+ <label class="block text-sm font-medium text-slate-700 mb-1">Category</label>
+ <select id="filterCategory" class="block w-full px-4 py-2 btn-retro  border border-ink border-[3px] rounded-lg bg-background text-on-background focus:outline-none focus:ring-2 focus:ring-primary appearance-none">
+ <option value="">All Categories</option>
+ </select>
+ </div>
+ <div>
+ <label class="block text-sm font-medium text-slate-700 mb-1">Location</label>
+ <select id="filterLocation" class="block w-full px-4 py-2 btn-retro  border border-ink border-[3px] rounded-lg bg-background text-on-background focus:outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer">
+ <option value="">Anywhere</option>
+ </select>
+ </div>
+ <div>
+ <label class="block text-sm font-medium text-slate-700 mb-1">Start Date</label>
+ <input type="date" id="filterStartDate" class="block w-full px-4 py-2 btn-retro  border border-ink border-[3px] rounded-lg bg-background text-on-background focus:outline-none focus:ring-2 focus:ring-primary input-retro rounded-lg ">
+ </div>
+ <div>
+ <label class="block text-sm font-medium text-slate-700 mb-1">End Date</label>
+ <input type="date" id="filterEndDate" class="block w-full px-4 py-2 btn-retro  border border-ink border-[3px] rounded-lg bg-background text-on-background focus:outline-none focus:ring-2 focus:ring-primary input-retro rounded-lg ">
+ </div>
+ <div class="flex items-center mt-4">
+ <input type="checkbox" id="filterUpcoming" class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded input-retro rounded-lg ">
+ <label for="filterUpcoming" class="ml-2 block text-sm text-on-background">
+ Upcoming events only
+ </label>
+ </div>
+ </div>
+
+ <div class="flex justify-end gap-3">
+ <button type="button" id="clearAdvancedFiltersBtn" class="px-4 py-2 btn-retro  text-on-surface-variant hover:text-slate-800 font-medium transition-colors">Clear Filters</button>
+ <button type="button" id="closeAdvancedSearchModal" class="px-4 py-2 btn-retro  text-on-surface-variant hover:text-slate-800 font-medium transition-colors">Cancel</button>
+ <button type="button" id="applyAdvancedSearchBtn" class="px-5 py-2 bg-primary btn-retro text-white rounded-lg hover:bg-primary font-medium shadow-retro transition-colors">Apply Filters</button>
+ </div>
+ </div>
+ </div>
+
+ <!-- Simple Footer -->
+ <script src="locations.js"></script>
+ <footer class="bg-surface border-t border-ink border-[3px] py-8">
+ <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center">
+ <div class="flex items-center mb-4 md:mb-0">
+ <span class="text-xl font-bold tracking-tight text-on-background">EventHub</span>
+ <span class="ml-4 text-sm text-on-surface-variant">&copy; 2026 EventHub Inc.</span>
+ </div>
+ <div class="flex space-x-6 items-center">
+ <a href="terms.html" class="text-slate-400 hover:text-on-surface-variant">Terms</a>
+ <a href="privacy.html" class="text-slate-400 hover:text-on-surface-variant">Privacy</a>
+ <a href="contact.html" class="text-slate-400 hover:text-on-surface-variant">Contact</a>
+ <button onclick="openWebsiteFeedbackModal()" class="text-slate-400 hover:text-indigo-600 text-sm font-medium transition-colors">Feedback</button>
+ </div>
+ </div>
+ </footer>
+
+ <script>
+ let userBookmarks = new Set();
+
+ document.addEventListener('DOMContentLoaded', async () => {
+ // Check auth state
+ const token = localStorage.getItem('token');
+ const authContainer = document.getElementById('authContainer');
+
+ if (token) {
+ // User is logged in
+ authContainer.innerHTML = `
+ <div class="flex items-center space-x-4">
+ <div id="adminLinkContainer"></div>
+ <a href="profile_page.html" id="profileLinkBtn" class="flex items-center space-x-2 p-1.5 rounded-full hover:bg-slate-100 transition-colors focus:outline-none">
+ <div class="h-8 w-8 rounded-full bg-gradient-to-tr from-brand-500 to-indigo-500 flex items-center justify-center text-white font-bold text-sm shadow-retro ring-2 ring-white">
+ <span id="userInitial">U</span>
+ </div>
+ </a>
+ </div>
+ `;
+ // Set initial
+ const userStr = localStorage.getItem('user');
+ let adminLinkHTML = '';
+ if (userStr) {
+ try {
+ const user = JSON.parse(userStr);
+ 
+ if (user.email === 'admin@gmail.com') {
+ adminLinkHTML = `<a href="admin_page.html" class="text-sm font-medium text-primary hover:text-primary transition-colors">Admin</a>`;
+ }
+ 
+ if (user.profilePictureUrl) {
+ const profileBtn = authContainer.querySelector('#profileLinkBtn');
+ profileBtn.innerHTML = `<img src="${user.profilePictureUrl}" alt="Profile" class="h-8 w-8 rounded-full object-cover ring-2 ring-white shadow-retro">`;
+ } else if (user.username) {
+ document.getElementById('userInitial').textContent = user.username.charAt(0).toUpperCase();
+ }
+ 
+ if (adminLinkHTML) {
+ const adminContainer = document.getElementById('adminLinkContainer');
+ adminContainer.innerHTML = adminLinkHTML;
+ }
+ } catch (e) {}
+ }
+ 
+ // Fetch user bookmarks
+ try {
+ const bmRes = await fetch('http://localhost:5000/api/bookmarks?size=1000', {
+ headers: { 'Authorization': `Bearer ${token}` }
+ });
+ if (bmRes.ok) {
+ const bmData = await bmRes.json();
+ bmData.content.forEach(b => userBookmarks.add(b.eventId));
+ }
+ } catch(e) {}
+ }
+
+ // --- Location Logic ---
+ const locationPillBtn = document.getElementById('locationPillBtn');
+ const locationModal = document.getElementById('locationModal');
+ const closeLocationModal = document.getElementById('closeLocationModal');
+ const saveLocationBtn = document.getElementById('saveLocationBtn');
+ const locationInput = document.getElementById('locationInput');
+ const locationPillText = document.getElementById('locationPillText');
+ const trendingTitle = document.getElementById('trendingTitle');
+
+ // Load locations from JS
+ const select = document.getElementById('locationInput');
+ const advLocSelect = document.getElementById('filterLocation');
+ if (typeof LOCATIONS !== 'undefined') {
+ LOCATIONS.forEach(loc => {
+ const option = document.createElement('option');
+ option.value = loc;
+ option.textContent = loc;
+ select.appendChild(option);
+ 
+ if (advLocSelect) {
+ const optAdv = document.createElement('option');
+ optAdv.value = loc;
+ optAdv.textContent = loc;
+ advLocSelect.appendChild(optAdv);
+ }
+ });
+ // Set current value if any
+ const currentUserLoc = localStorage.getItem('userLocation');
+ if (currentUserLoc && currentUserLoc !== 'Anywhere' && currentUserLoc !== 'Athirampuzha') {
+ select.value = currentUserLoc;
+ if (advLocSelect) advLocSelect.value = currentUserLoc;
+ }
+ }
+
+ let userLocation = localStorage.getItem('userLocation') || 'Athirampuzha';
+ locationPillText.textContent = userLocation;
+ if(trendingTitle) trendingTitle.textContent = `Trending in ${userLocation}`;
+
+ locationPillBtn.addEventListener('click', () => {
+ locationInput.value = userLocation === 'Athirampuzha' ? '' : userLocation;
+ locationModal.classList.remove('hidden');
+ });
+
+ closeLocationModal.addEventListener('click', () => {
+ locationModal.classList.add('hidden');
+ });
+
+ saveLocationBtn.addEventListener('click', () => {
+ const val = locationInput.value.trim() || 'Athirampuzha';
+ userLocation = val;
+ localStorage.setItem('userLocation', userLocation);
+ locationPillText.textContent = userLocation;
+ if(trendingTitle) trendingTitle.textContent = `Trending in ${userLocation}`;
+ locationModal.classList.add('hidden');
+ fetchEvents(0);
+ });
+ // ---------------------
+
+ // Fetch Categories
+ try {
+ fetch('http://localhost:5000/api/events/categories')
+ .then(res => res.json())
+ .then(categories => {
+ const catSelect = document.getElementById('filterCategory');
+ if(catSelect) {
+ categories.forEach(c => {
+ const opt = document.createElement('option');
+ opt.value = c;
+ opt.textContent = c.replace(/_/g, ' ');
+ catSelect.appendChild(opt);
+ });
+ }
+ })
+ .catch(e => console.error('Failed to load categories', e));
+ } catch (e) {}
+
+ const searchInput = document.getElementById('searchInput');
+ const clearSearchBtn = document.getElementById('clearSearchBtn');
+ const advancedSearchBtn = document.getElementById('advancedSearchBtn');
+ const advancedSearchModal = document.getElementById('advancedSearchModal');
+ const closeAdvancedSearchModal = document.getElementById('closeAdvancedSearchModal');
+ const applyAdvancedSearchBtn = document.getElementById('applyAdvancedSearchBtn');
+ const clearAdvancedFiltersBtn = document.getElementById('clearAdvancedFiltersBtn');
+
+ if (advancedSearchBtn) {
+ advancedSearchBtn.addEventListener('click', () => advancedSearchModal.classList.remove('hidden'));
+ closeAdvancedSearchModal.addEventListener('click', () => advancedSearchModal.classList.add('hidden'));
+ 
+ clearAdvancedFiltersBtn.addEventListener('click', () => {
+ document.getElementById('filterCategory').value = '';
+ document.getElementById('filterLocation').value = '';
+ document.getElementById('filterStartDate').value = '';
+ document.getElementById('filterEndDate').value = '';
+ document.getElementById('filterUpcoming').checked = false;
+ });
+
+ applyAdvancedSearchBtn.addEventListener('click', () => {
+ advancedSearchModal.classList.add('hidden');
+ fetchEvents(0);
+ });
+ }
+
+ if (searchInput) {
+ let scrollTimeout;
+ 
+ if (clearSearchBtn) {
+ clearSearchBtn.addEventListener('click', () => {
+ searchInput.value = '';
+ clearSearchBtn.classList.add('hidden');
+ fetchEvents(0);
+ });
+ }
+
+ // Scroll immediately when clicking/focusing the search bar
+ searchInput.addEventListener('focus', () => {
+ const target = document.getElementById('trendingTitle');
+ if (target) {
+ target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+ }
+ });
+
+ searchInput.addEventListener('input', () => {
+ if (clearSearchBtn) {
+ if (searchInput.value.trim() !== '') {
+ clearSearchBtn.classList.remove('hidden');
+ } else {
+ clearSearchBtn.classList.add('hidden');
+ }
+ }
+
+ clearTimeout(scrollTimeout);
+ if (searchInput.value.trim() !== '') {
+ scrollTimeout = setTimeout(() => {
+ fetchEvents(0);
+ const target = document.getElementById('trendingTitle');
+ if (target) {
+ target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+ }
+ }, 800);
+ } else {
+ fetchEvents(0);
+ }
+ });
+
+ searchInput.addEventListener('keydown', (e) => {
+ if (e.key === 'Enter') {
+ clearTimeout(scrollTimeout);
+ const target = document.getElementById('trendingTitle');
+ if (target) {
+ target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+ }
+ }
+ });
+ }
+
+ // Fetch events
+ fetchEvents(0);
+ });
+
+ let currentPage = 0;
+ const pageSize = 9;
+
+ async function fetchEvents(page = 0) {
+ const eventsGrid = document.getElementById('eventsGrid');
+ const searchInput = document.getElementById('searchInput');
+ const userLocation = localStorage.getItem('userLocation');
+ 
+ const category = document.getElementById('filterCategory')?.value;
+ const locationAdv = document.getElementById('filterLocation')?.value;
+ const startDate = document.getElementById('filterStartDate')?.value;
+ const endDate = document.getElementById('filterEndDate')?.value;
+ const upcoming = document.getElementById('filterUpcoming')?.checked;
+ 
+ let url = `http://localhost:5000/api/events/search?page=${page}&size=${pageSize}`;
+ 
+ if (searchInput && searchInput.value.trim() !== '') {
+ url += `&keyword=${encodeURIComponent(searchInput.value.trim())}`;
+ }
+ 
+ // Prefer advanced search location if set, else fallback to user location pill
+ let locationApplied = false;
+ if (locationAdv && locationAdv.trim() !== '') {
+ url += `&location=${encodeURIComponent(locationAdv.trim())}`;
+ locationApplied = true;
+ } else if (userLocation && userLocation !== 'Athirampuzha' && userLocation !== 'Anywhere') {
+ url += `&location=${encodeURIComponent(userLocation.split(',')[0].trim())}`;
+ locationApplied = true;
+ }
+
+ if (locationApplied) {
+ url += `&sortBy=interestCount&direction=desc`;
+ }
+
+ if (category) url += `&category=${category}`;
+ if (startDate) url += `&startDate=${startDate}`;
+ if (endDate) url += `&endDate=${endDate}`;
+ if (upcoming) url += `&upcoming=true`;
+
+
+ try {
+ const response = await fetch(url);
+ const data = await response.json();
+ currentPage = data.pageNumber;
+ renderEvents(data.content);
+ renderPagination(data);
+ } catch (error) {
+ console.error('Error fetching events:', error);
+ eventsGrid.innerHTML = '<div class="col-span-full text-center py-10 text-red-500">Error loading events. Is the server running?</div>';
+ document.getElementById('paginationControls').classList.add('hidden');
+ }
+ }
+ 
+ function renderPagination(data) {
+ const paginationControls = document.getElementById('paginationControls');
+ if (data.totalElements === 0) {
+ paginationControls.classList.add('hidden');
+ return;
+ }
+ 
+ paginationControls.classList.remove('hidden');
+ 
+ document.getElementById('pageStart').textContent = (data.pageNumber * data.pageSize) + 1;
+ document.getElementById('pageEnd').textContent = Math.min((data.pageNumber + 1) * data.pageSize, data.totalElements);
+ document.getElementById('totalElements').textContent = data.totalElements;
+ 
+ const prevBtn = document.getElementById('prevPageBtn');
+ const nextBtn = document.getElementById('nextPageBtn');
+ 
+ prevBtn.disabled = data.pageNumber === 0;
+ nextBtn.disabled = data.last;
+ 
+ prevBtn.onclick = () => fetchEvents(data.pageNumber - 1);
+ nextBtn.onclick = () => fetchEvents(data.pageNumber + 1);
+ 
+ const pageNumbers = document.getElementById('pageNumbers');
+ pageNumbers.innerHTML = '';
+ 
+ for (let i = 0; i < data.totalPages; i++) {
+ if (data.totalPages > 7) {
+ if (i !== 0 && i !== data.totalPages - 1 && Math.abs(i - data.pageNumber) > 1) {
+ if (i === 1 || i === data.totalPages - 2) {
+ const ellipsis = document.createElement('span');
+ ellipsis.className = 'px-3 py-2 text-on-surface-variant';
+ ellipsis.textContent = '...';
+ pageNumbers.appendChild(ellipsis);
+ }
+ continue;
+ }
+ }
+ 
+ const btn = document.createElement('button');
+ btn.className = `px-3.5 py-2 border rounded-lg text-sm font-medium transition-colors ${i === data.pageNumber ? 'bg-primary text-white border-brand-600' : 'border-ink border-[3px] text-slate-700 hover:bg-background '}`;
+ btn.textContent = i + 1;
+ btn.onclick = () => fetchEvents(i);
+ pageNumbers.appendChild(btn);
+ }
+ }
+
+ async function toggleBookmarkHome(e, eventId) {
+  e.stopPropagation(); // prevent opening event details
+  const token = localStorage.getItem('token');
+  if (!token) {
+  showAuthRequiredModal('Save Event', 'You must be signed in to save events to your bookmarks.');
+  return;
+  }
+ 
+ const isBookmarked = userBookmarks.has(eventId);
+ const method = isBookmarked ? 'DELETE' : 'POST';
+ 
+ try {
+ const res = await fetch(`http://localhost:5000/api/bookmarks/${eventId}`, {
+ method: method,
+ headers: { 'Authorization': `Bearer ${token}` }
+ });
+ 
+ if (res.ok) {
+ if (isBookmarked) {
+ userBookmarks.delete(eventId);
+ } else {
+ userBookmarks.add(eventId);
+ }
+ 
+ const btn = document.getElementById(`bookmark-btn-${eventId}`);
+ if (btn) {
+ if (userBookmarks.has(eventId)) {
+ btn.textContent = '♥';
+ btn.classList.add('text-primary');
+ btn.classList.remove('text-slate-400');
+ } else {
+ btn.textContent = '♡';
+ btn.classList.remove('text-primary');
+ btn.classList.add('text-slate-400');
+ }
+ }
+ }
+ } catch (err) {}
+ }
+
+ async function toggleInterest(e, eventId) {
+ e.stopPropagation();
+ const token = localStorage.getItem('token');
+ if (!token) {
+ window.location.href = 'login_page.html';
+ return;
+ }
+ try {
+ const response = await fetch(`http://localhost:5000/api/events/${eventId}/interest`, {
+ method: 'PUT',
+ headers: {
+ 'Authorization': 'Bearer ' + token
+ }
+ });
+ if (response.ok) {
+ const updatedEvent = await response.json();
+ const countSpan = document.getElementById(`interest-count-${eventId}`);
+ if (countSpan) {
+ countSpan.textContent = updatedEvent.interestCount || 0;
+ }
+ }
+ } catch (err) {
+ console.error('Error toggling interest:', err);
+ }
+ }
+
+ function renderEvents(eventsToRender) {
+ const eventsGrid = document.getElementById('eventsGrid');
+
+ if (!eventsToRender || eventsToRender.length === 0) {
+ eventsGrid.innerHTML = `
+ <div class="col-span-full flex flex-col items-center justify-center py-16 px-4">
+ <div class="bg-slate-100 rounded-full p-4 mb-4">
+ <svg class="h-8 w-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+ </svg>
+ </div>
+ <h3 class="text-lg font-medium text-on-background">No events found</h3>
+ <p class="mt-1 text-on-surface-variant max-w-sm text-center">We couldn't find any events matching this criteria right now. Try expanding your search or check back later.</p>
+ </div>
+ `;
+ return;
+ }
+
+ eventsGrid.innerHTML = '';
+ eventsToRender.forEach(event => {
+ const date = new Date(event.eventDate);
+ const month = date.toLocaleString('default', { month: 'short' });
+ const day = date.getDate();
+
+ let statusBadgeHTML = '';
+ if (event.status === 'coming') {
+ statusBadgeHTML = `
+ <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 backdrop-blur-sm absolute top-4 right-4 z-10 shadow-retro">
+ <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+ Coming
+ </span>
+ `;
+ } else if (event.status === 'ongoing') {
+ statusBadgeHTML = `
+ <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-primary btn-retro/100/10 text-primary border border-blue-500/20 backdrop-blur-sm absolute top-4 right-4 z-10 shadow-retro">
+ <span class="w-1.5 h-1.5 rounded-full bg-primary btn-retro/100 animate-pulse"></span>
+ Ongoing
+ </span>
+ `;
+ } else if (event.status === 'completed') {
+ statusBadgeHTML = `
+ <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-background0/10 text-on-surface-variant border border-slate-500/20 backdrop-blur-sm absolute top-4 right-4 z-10 shadow-retro">
+ <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+ Completed
+ </span>
+ `;
+ }
+
+ const isBookmarked = userBookmarks.has(event.id);
+ const bIcon = isBookmarked ? '♥' : '♡';
+ const bColor = isBookmarked ? 'text-primary' : 'text-slate-400';
+
+ const card = document.createElement('div');
+ card.className = 'bg-surface card-retro rounded-xl overflow-hidden group cursor-pointer';
+ card.onclick = () => window.location.href = `event_details.html?id=${event.id}`;
+ card.innerHTML = `
+ <div class="relative h-48 overflow-hidden">
+  <img src="${event.imageUrl}" alt="${event.eventName}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+  ${statusBadgeHTML}
+  <div class="absolute top-4 left-4 bg-surface/90 backdrop-blur-sm px-3 py-1 btn-retro  rounded-md shadow-retro text-center">
+  <span class="block text-xs font-bold text-primary uppercase">${month}</span>
+  <span class="block text-lg font-bold text-on-background leading-none">${day}</span>
+  </div>
+  </div>
+  <div class="p-5 relative">
+  <div class="flex justify-between items-start mb-2">
+  <span class="text-xs font-semibold text-primary tracking-wider uppercase block">${event.eventType}</span>
+  <div class="flex items-center gap-2">
+  <button onclick="toggleInterest(event, '${event.id}')" class="flex items-center gap-1 px-2.5 py-1 text-sm bg-surface/90 rounded-full border border-ink border-[2px] shadow-retro-sm hover:bg-slate-100 transition-colors" title="Express Interest">
+  <span class="text-amber-500">&#11088;</span>
+  <span id="interest-count-${event.id}" class="font-bold text-on-background">${event.interestCount || 0}</span>
+  </button>
+  <button id="bookmark-btn-${event.id}" onclick="toggleBookmarkHome(event, '${event.id}')" class="p-1.5 bg-surface/90 rounded-full border border-ink border-[2px] shadow-retro-sm hover:scale-110 transition-transform text-lg leading-none ${bColor}" title="Save Event">
+  ${bIcon}
+  </button>
+  </div>
+  </div>
+  <h3 class="text-lg font-bold text-on-background mb-1 truncate flex items-center gap-1.5 pr-8">
+  ${event.eventName}
+  ${event.verified ? `<svg class="w-5 h-5 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" title="Verified Event"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>` : ''}
+  </h3>
+  <p class="text-on-surface-variant text-sm mb-4 line-clamp-2">${event.description}</p>
+  <div class="flex items-center text-sm text-on-surface-variant">
+  <svg class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+  </svg>
+  ${event.location}
+  </div>
+  </div>
+ `;
+ eventsGrid.appendChild(card);
+ });
+ }
+
+ // --- Website Feedback Modal Logic ---
+ let selectedWebsiteRating = 0;
+
+ function openWebsiteFeedbackModal() {
+ const modal = document.getElementById('websiteFeedbackModal');
+ const container = document.getElementById('websiteFeedbackFormContainer');
+ modal.classList.remove('hidden');
+ 
+ const token = localStorage.getItem('token');
+ if (!token) {
+ container.innerHTML = `
+ <div class="text-center py-6">
+ <p class="text-on-surface-variant text-xs mb-4">You must be signed in to submit website feedback.</p>
+ <a href="login_page.html" class="inline-block px-4 py-2 bg-primary btn-retro hover:bg-primary text-white text-xs font-bold rounded-xl transition-colors">Log In</a>
+ </div>
+ `;
+ } else {
+ selectedWebsiteRating = 0;
+ container.innerHTML = `
+ <form id="websiteFeedbackForm" onsubmit="submitWebsiteFeedback(event)" class="space-y-4">
+ <div>
+ <label class="block text-xs font-bold text-on-surface-variant uppercase mb-2">Your Rating</label>
+ <div class="flex items-center space-x-1.5 text-2xl" id="websiteStarsContainer">
+ <span class="star-rating-website cursor-pointer transition-colors text-slate-350 hover:text-amber-400" data-rating="1" onclick="setWebsiteRating(1)">★</span>
+ <span class="star-rating-website cursor-pointer transition-colors text-slate-350 hover:text-amber-400" data-rating="2" onclick="setWebsiteRating(2)">★</span>
+ <span class="star-rating-website cursor-pointer transition-colors text-slate-350 hover:text-amber-400" data-rating="3" onclick="setWebsiteRating(3)">★</span>
+ <span class="star-rating-website cursor-pointer transition-colors text-slate-350 hover:text-amber-400" data-rating="4" onclick="setWebsiteRating(4)">★</span>
+ <span class="star-rating-website cursor-pointer transition-colors text-slate-350 hover:text-amber-400" data-rating="5" onclick="setWebsiteRating(5)">★</span>
+ </div>
+ </div>
+ <div>
+ <label for="websiteCommentInput" class="block text-xs font-bold text-on-surface-variant uppercase mb-1.5">Comments / Review</label>
+ <textarea id="websiteCommentInput" rows="4" required placeholder="Tell us about your experience on our website..." class="block w-full px-3 py-2 btn-retro  border border-ink border-[3px] rounded-xl bg-surface text-slate-800 placeholder-slate-400 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-primary resize-none text-xs"></textarea>
+ </div>
+ <button type="submit" class="w-full flex justify-center py-2.5 bg-primary btn-retro hover:bg-primary text-white rounded-xl font-bold uppercase text-xs transition-colors">
+ Submit Feedback
+ </button>
+ </form>
+ `;
+ }
+ }
+
+ function closeWebsiteFeedbackModal() {
+ document.getElementById('websiteFeedbackModal').classList.add('hidden');
+ }
+
+ function setWebsiteRating(rating) {
+ selectedWebsiteRating = rating;
+ const stars = document.querySelectorAll('#websiteStarsContainer .star-rating-website');
+ stars.forEach((star, index) => {
+ if (index < rating) {
+ star.classList.remove('text-slate-350');
+ star.classList.add('text-amber-500');
+ } else {
+ star.classList.remove('text-amber-500');
+ star.classList.add('text-slate-350');
+ }
+ });
+ }
+
+ async function submitWebsiteFeedback(event) {
+ event.preventDefault();
+ if (selectedWebsiteRating === 0) {
+ alert("Please select a rating of at least 1 star.");
+ return;
+ }
+ 
+ const comment = document.getElementById('websiteCommentInput').value.trim();
+ const token = localStorage.getItem('token');
+ const user = JSON.parse(localStorage.getItem('user') || '{}');
+ 
+ try {
+ const response = await fetch('http://localhost:5000/api/feedbacks', {
+ method: 'POST',
+ headers: {
+ 'Content-Type': 'application/json',
+ 'Authorization': `Bearer ${token}`
+ },
+ body: JSON.stringify({
+ eventId: 'website',
+ eventName: 'Website Feedback',
+ userId: user.id || 'unknown',
+ userName: user.name || 'Anonymous User',
+ rating: selectedWebsiteRating,
+ comment: comment
+ })
+ });
+ 
+ if (response.ok) {
+ alert("Thank you for your feedback!");
+ closeWebsiteFeedbackModal();
+ } else {
+ const err = await response.text();
+ alert("Error:" + err);
+ }
+ } catch (e) {
+ alert("Failed to submit feedback:" + e.message);
+ }
+ }
+
+ // --- Auth Required Modal Logic ---
+ function showAuthRequiredModal(title, message) {
+ document.getElementById('authModalTitle').textContent = title;
+ document.getElementById('authModalMessage').textContent = message;
+ document.getElementById('authRequiredModal').classList.remove('hidden');
+ }
+
+ function closeAuthRequiredModal() {
+ document.getElementById('authRequiredModal').classList.add('hidden');
+ }
+
+ function handleProtectedLinkClick(e, destination, title, message) {
+ e.preventDefault();
+ const token = localStorage.getItem('token');
+ if (token) {
+ window.location.href = destination;
+ } else {
+ showAuthRequiredModal(title, message);
+ }
+ }
+ </script>
+
+ <!-- WEBSITE FEEDBACK MODAL -->
+ <div id="websiteFeedbackModal" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true">
+ <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity"></div>
+ <div class="fixed inset-0 z-10 w-screen overflow-y-auto flex items-center justify-center p-4">
+ <div class="relative bg-surface border border-ink border-[3px]/80 p-6 w-full max-w-md rounded-xl shadow-xl flex flex-col space-y-4 font-sans text-sm text-slate-800">
+ <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+ <h3 class="text-base font-extrabold tracking-wide uppercase">
+ Website Feedback
+ </h3>
+ <button onclick="closeWebsiteFeedbackModal()" class="text-slate-400 hover:text-on-surface-variant">
+ <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+ </svg>
+ </button>
+ </div>
+ 
+ <div id="websiteFeedbackFormContainer" class="space-y-4">
+ <!-- Form or Login message will be dynamically rendered here -->
+ </div>
+ </div>
+ </div>
+ </div>
+
+ <!-- AUTH REQUIRED WARNING MODAL -->
+ <div id="authRequiredModal" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true">
+ <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity"></div>
+ <div class="fixed inset-0 z-10 w-screen overflow-y-auto flex items-center justify-center p-4">
+ <div class="relative bg-surface border border-ink border-[3px] p-6 w-full max-w-md rounded-2xl shadow-xl flex flex-col space-y-6 font-sans text-sm text-slate-800 text-center">
+ <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+ <h3 class="text-base font-extrabold tracking-wide uppercase text-slate-900" id="authModalTitle">
+ Authentication Required
+ </h3>
+ <button onclick="closeAuthRequiredModal()" class="text-slate-400 hover:text-on-surface-variant">
+ <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+ </svg>
+ </button>
+ </div>
+ 
+ <div class="py-4 flex flex-col items-center">
+ <p class="text-on-surface-variant text-sm mb-6 max-w-xs" id="authModalMessage">
+ You must be signed in to perform this action.
+ </p>
+ <a href="login_page.html" class="inline-flex justify-center px-6 py-2.5 bg-primary btn-retro text-white rounded-xl font-bold uppercase text-xs transition-colors">
+ Log In
+ </a>
+ </div>
+ </div>
+ </div>
+ </div>
+</body>
+</html>

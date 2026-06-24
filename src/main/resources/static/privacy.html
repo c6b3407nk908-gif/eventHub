@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+ <meta charset="UTF-8">
+ <title>Privacy Policy - EventHub</title>
+ <script src="https://cdn.tailwindcss.com"></script>
+ <script>
+ tailwind.config = {
+ theme: {
+ extend: {
+ fontFamily: {
+ display: ['"Bricolage Grotesque"', 'sans-serif'],
+ body: ['"DM Sans"', 'sans-serif'],
+ mono: ['"Courier Prime"', 'monospace'],
+ },
+ colors: {
+ background: '#fdf9f4',
+ surface: '#ffffff',
+ 'surface-variant': '#e6e2dd',
+ primary: '#a7332d',
+ 'primary-container': '#c84b43',
+ secondary: '#456274',
+ tertiary: '#7b550a',
+ ink: '#1c1c19',
+ 'on-background': '#1c1c19',
+ 'on-surface-variant': '#58413f'
+ },
+ boxShadow: {
+ 'retro': '4px 4px 0px #1c1c19',
+ 'retro-hover': '2px 2px 0px #1c1c19',
+ 'retro-sm': '2px 2px 0px #1c1c19',
+ }
+ }
+ }
+ }
+ </script>
+</head>
+<body class="bg-background text-on-background p-8 min-h-screen flex items-center justify-center">
+ <div class="max-w-2xl bg-surface p-8 rounded-xl shadow-retro border border-ink border-[3px]">
+ <h1 class="text-3xl font-bold mb-4">Privacy Policy</h1>
+ <p class="text-on-surface-variant mb-4">At EventHub, we take your privacy seriously. We only collect the necessary information required to facilitate event discovery and applications.</p>
+ <p class="text-on-surface-variant mb-6">Your profile details (such as name and email) are only shared with event organizers when you explicitly choose to apply for a role or sponsorship. We do not sell your data to third parties.</p>
+ <a href="home_page.html" class="inline-flex items-center text-primary hover:text-primary font-medium">
+ &larr; Back to Home
+ </a>
+ </div>
+</body>
+</html>

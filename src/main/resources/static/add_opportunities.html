@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en" class="antialiased">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>EventHub - Add Opportunities</title>
+ <script src="https://cdn.tailwindcss.com"></script>
+ <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
+ <script>
+ tailwind.config = {
+ theme: {
+ extend: {
+ fontFamily: {
+ display: ['"Bricolage Grotesque"', 'sans-serif'],
+ body: ['"DM Sans"', 'sans-serif'],
+ mono: ['"Courier Prime"', 'monospace'],
+ },
+ colors: {
+ background: '#fdf9f4',
+ surface: '#ffffff',
+ 'surface-variant': '#e6e2dd',
+ primary: '#a7332d',
+ 'primary-container': '#c84b43',
+ secondary: '#456274',
+ tertiary: '#7b550a',
+ ink: '#1c1c19',
+ 'on-background': '#1c1c19',
+ 'on-surface-variant': '#58413f'
+ },
+ boxShadow: {
+ 'retro': '4px 4px 0px #1c1c19',
+ 'retro-hover': '2px 2px 0px #1c1c19',
+ 'retro-sm': '2px 2px 0px #1c1c19',
+ }
+ }
+ }
+ }
+ </script>
+ <style>
+ body { font-family: 'DM Sans', sans-serif; background-color: #fdf9f4; color: #1c1c19; }
+ h1, h2, h3, h4, h5, h6 { font-family: 'Bricolage Grotesque', sans-serif; }
+ .label-stamp { font-family: 'Courier Prime', monospace; text-transform: uppercase; letter-spacing: 0.05em; font-weight: bold; }
+ .btn-retro { border: 3px solid #1c1c19; box-shadow: 4px 4px 0px #1c1c19; transition: all 0.1s ease; }
+ .btn-retro:hover { transform: translate(2px, 2px); box-shadow: 2px 2px 0px #1c1c19; }
+ .btn-retro:active { transform: translate(4px, 4px); box-shadow: none; }
+ .card-retro { border: 3px solid #1c1c19; box-shadow: 4px 4px 0px #1c1c19; transition: all 0.2s ease; }
+ .card-retro:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0px #1c1c19; }
+ .input-retro { border: 3px solid #1c1c19; background-color: #ffffff; }
+ .input-retro:focus { outline: none; box-shadow: 4px 4px 0px #c84b43; }
+ 
+ /* Scrollbar */
+ ::-webkit-scrollbar { width: 12px; border-left: 3px solid #1c1c19; }
+ ::-webkit-scrollbar-track { background: #fdf9f4; }
+ ::-webkit-scrollbar-thumb { background: #1c1c19; border: 2px solid #fdf9f4; }
+ </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col transition-colors duration-300">
+
+ <header class="sticky top-0 z-50 bg-surface border-b border-ink border-[3px] shadow-retro">
+ <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+ <div class="flex justify-between items-center h-20 gap-4">
+ <!-- Logo -->
+ <div class="flex-shrink-0 flex items-center cursor-pointer" onclick="window.location.href='home_page.html'">
+ <svg class="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+ </svg>
+ <span class="ml-2 text-xl font-bold tracking-tight text-on-background">EventHub</span>
+ </div>
+ 
+ <!-- Back/Cancel Button -->
+ <button type="button" onclick="window.location.href='create-event.html'" class="text-sm font-medium text-on-surface-variant hover:text-slate-700 transition-colors flex items-center">
+ <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+ </svg>
+ Back to Event
+ </button>
+ </div>
+ </div>
+ </header>
+
+ <main class="flex-grow py-12 px-4 sm:px-6 lg:px-8">
+ <div class="max-w-3xl mx-auto">
+ 
+ <div class="mb-8">
+ <h1 class="text-3xl font-bold text-on-background tracking-tight">Add Opportunities</h1>
+ <p class="mt-2 text-on-surface-variant">Define the roles you are hiring for and the sponsorship packages available for your event.</p>
+ </div>
+
+ <form id="opportunitiesForm" class="space-y-8">
+ 
+ <div class="bg-surface rounded-xl shadow-retro border border-ink border-[3px] overflow-hidden">
+ <div class="p-6 sm:p-8">
+ <div class="flex items-center mb-6">
+ <div class="p-2 bg-slate-100 rounded-lg mr-3">
+ <svg class="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+ <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 14h.01M9 14h.01" />
+ </svg>
+ </div>
+ <div>
+ <h2 class="text-xl font-semibold text-on-background">Job & Volunteer Vacancies</h2>
+ <p class="text-sm text-on-surface-variant mt-1">Add a position you need to fill for this event.</p>
+ </div>
+ </div>
+
+ <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+ <!-- Role Title -->
+ <div class="sm:col-span-2">
+ <label for="roleTitle" class="block text-sm font-medium text-slate-700">Role Title <span class="text-red-500">*</span></label>
+ <div class="mt-1">
+ <input type="text" name="roleTitle" id="roleTitle" class="block w-full px-4 py-3 btn-retro  border border-ink border-[3px] rounded-lg bg-background text-on-background placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-brand-500 sm:text-sm transition-colors input-retro rounded-lg " placeholder="E.g. Stage Manager, Volunteer, Security">
+ </div>
+ </div>
+
+ <!-- Job Type -->
+ <div>
+ <label for="jobType" class="block text-sm font-medium text-slate-700">Type <span class="text-red-500">*</span></label>
+ <div class="mt-1">
+ <select id="jobType" name="jobType" class="block w-full px-4 py-3 btn-retro  border border-ink border-[3px] rounded-lg bg-background text-on-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-brand-500 sm:text-sm transition-colors appearance-none">
+ <option value="" disabled selected>Select type</option>
+ <option value="volunteer">Volunteer (Unpaid)</option>
+ <option value="freelance">Freelance / Contract</option>
+ <option value="part-time">Part-time</option>
+ <option value="full-time">Full-time</option>
+ </select>
+ </div>
+ </div>
+
+ <!-- Compensation/Pay -->
+ <div>
+ <label for="compensation" class="block text-sm font-medium text-slate-700">Compensation</label>
+ <div class="mt-1">
+ <input type="text" name="compensation" id="compensation" class="block w-full px-4 py-3 btn-retro  border border-ink border-[3px] rounded-lg bg-background text-on-background placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-brand-500 sm:text-sm transition-colors input-retro rounded-lg " placeholder="E.g. ₹500/day, Free Tickets">
+ </div>
+ </div>
+
+ <!-- Role Description -->
+ <div class="sm:col-span-2">
+ <label for="roleDescription" class="block text-sm font-medium text-slate-700">Requirements & Description</label>
+ <div class="mt-1">
+ <textarea id="roleDescription" name="roleDescription" rows="3" class="block w-full px-4 py-3 btn-retro  border border-ink border-[3px] rounded-lg bg-background text-on-background placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-brand-500 sm:text-sm transition-colors resize-none" placeholder="What will they be doing? Any specific skills required?"></textarea>
+ </div>
+ </div>
+ </div>
+ </div>
+ <div class="bg-background px-6 py-4 btn-retro  border-t border-ink border-[3px] flex justify-end">
+ <button type="button" id="addRoleBtn" class="text-sm font-medium text-primary hover:text-primary transition-colors flex items-center">
+ <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+ </svg>
+ Add another role
+ </button>
+ </div>
+ </div>
+
+ <div class="bg-surface rounded-xl shadow-retro border border-ink border-[3px] overflow-hidden">
+ <div class="p-6 sm:p-8">
+ <div class="flex items-center mb-6">
+ <div class="p-2 bg-yellow-50 rounded-lg mr-3">
+ <svg class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+ </svg>
+ </div>
+ <div>
+ <h2 class="text-xl font-semibold text-on-background">Sponsorship Packages</h2>
+ <p class="text-sm text-on-surface-variant mt-1">Offer advertising or branding spots for local businesses.</p>
+ </div>
+ </div>
+
+ <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+ <!-- Package Name -->
+ <div>
+ <label for="packageName" class="block text-sm font-medium text-slate-700">Package Name <span class="text-red-500">*</span></label>
+ <div class="mt-1">
+ <input type="text" name="packageName" id="packageName" class="block w-full px-4 py-3 btn-retro  border border-ink border-[3px] rounded-lg bg-background text-on-background placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-brand-500 sm:text-sm transition-colors input-retro rounded-lg " placeholder="E.g. Gold Sponsor, Title Sponsor">
+ </div>
+ </div>
+
+ <!-- Price -->
+ <div>
+ <label for="packagePrice" class="block text-sm font-medium text-slate-700">Price (₹) <span class="text-red-500">*</span></label>
+ <div class="mt-1 relative">
+ <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+ <span class="text-on-surface-variant sm:text-sm">₹</span>
+ </div>
+ <input type="number" name="packagePrice" id="packagePrice" class="block w-full pl-8 pr-4 py-3 border border-ink border-[3px] rounded-lg bg-background text-on-background placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-brand-500 sm:text-sm transition-colors input-retro rounded-lg " placeholder="5000">
+ </div>
+ </div>
+
+ <!-- Package Perks -->
+ <div class="sm:col-span-2">
+ <label for="packagePerks" class="block text-sm font-medium text-slate-700">Included Perks & Benefits</label>
+ <div class="mt-1">
+ <textarea id="packagePerks" name="packagePerks" rows="3" class="block w-full px-4 py-3 btn-retro  border border-ink border-[3px] rounded-lg bg-background text-on-background placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-brand-500 sm:text-sm transition-colors resize-none" placeholder="What does the sponsor get? (e.g., Logo on main stage, 5 VIP passes, social media mentions)"></textarea>
+ </div>
+ </div>
+ </div>
+ </div>
+ <div class="bg-background px-6 py-4 btn-retro  border-t border-ink border-[3px] flex justify-end">
+ <button type="button" id="addPackageBtn" class="text-sm font-medium text-primary hover:text-primary transition-colors flex items-center">
+ <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+ </svg>
+ Add another package
+ </button>
+ </div>
+ </div>
+
+ <div class="pt-4 flex justify-end gap-3">
+ <button type="button" onclick="window.location.href='home_page.html'" class="px-5 py-2 btn-retro .5 text-sm font-medium rounded-lg text-slate-700 bg-surface border border-ink border-[3px] hover:bg-background focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors">
+ Skip / Cancel
+ </button>
+ <button type="submit" id="submitBtn" class="inline-flex justify-center items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg text-white bg-primary btn-retro hover:bg-primary shadow-retro focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors">
+ <span id="btnText">Save Opportunities</span>
+ <svg id="btnSpinner" class="hidden animate-spin ml-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+ <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+ <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+ </svg>
+ </button>
+ </div>
+
+ </form>
+ </div>
+ </main>
+
+ <!-- Custom Toast Notification -->
+ <div id="toastNotification" class="fixed top-4 right-4 max-w-sm w-full bg-surface shadow-retro rounded-xl pointer-events-auto ring-1 ring-black ring-opacity-5 overflow-hidden transform translate-x-full opacity-0 transition-all duration-300 z-50">
+ <div class="p-4">
+ <div class="flex items-start">
+ <div class="flex-shrink-0">
+ <svg class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+ </svg>
+ </div>
+ <div class="ml-3 w-0 flex-1 pt-0.5">
+ <p class="text-sm font-medium text-on-background">Opportunities Saved!</p>
+ <p class="mt-1 text-sm text-on-surface-variant">Your job vacancies and sponsorship packages have been added to the event.</p>
+ </div>
+ <div class="ml-4 flex-shrink-0 flex">
+ <button type="button" onclick="hideToast()" class="bg-surface rounded-md inline-flex text-slate-400 hover:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+ <span class="sr-only">Close</span>
+ <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+ <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+ </svg>
+ </button>
+ </div>
+ </div>
+ </div>
+ </div>
+
+ <script>
+ document.addEventListener('DOMContentLoaded', () => {
+ const form = document.getElementById('opportunitiesForm');
+ 
+ // Function to post partial payload and show toast
+ const postOpportunity = async (payload, successMsg) => {
+ const params = new URLSearchParams(window.location.search);
+ const eventId = params.get('id');
+ if (!eventId) {
+ alert("No event ID found.");
+ return false;
+ }
+ 
+ try {
+ const response = await fetch(`http://localhost:5000/api/events/${eventId}/opportunities`, {
+ method: 'POST',
+ headers: { 
+ 'Content-Type': 'application/json',
+ 'Authorization': `Bearer ${localStorage.getItem('token')}`
+ },
+ body: JSON.stringify(payload)
+ });
+ if (response.ok) {
+ document.querySelector('#toastNotification p.font-medium').textContent = successMsg;
+ document.querySelector('#toastNotification p.text-on-surface-variant').textContent = 'Successfully saved to event.';
+ showToast();
+ return true;
+ }
+ } catch (error) {
+ console.error(error);
+ }
+ alert("Error saving opportunity.");
+ return false;
+ };
+
+ // Add another role
+ document.getElementById('addRoleBtn').addEventListener('click', async () => {
+ const roleTitle = document.getElementById('roleTitle').value;
+ if(!roleTitle) return alert("Role title is required.");
+ const payload = {
+ roleTitle,
+ jobType: document.getElementById('jobType').value,
+ compensation: document.getElementById('compensation').value,
+ roleDescription: document.getElementById('roleDescription').value
+ };
+ if(await postOpportunity(payload, 'Role Added!')) {
+ // Clear inputs
+ document.getElementById('roleTitle').value = '';
+ document.getElementById('jobType').value = '';
+ document.getElementById('compensation').value = '';
+ document.getElementById('roleDescription').value = '';
+ }
+ });
+
+ // Add another package
+ document.getElementById('addPackageBtn').addEventListener('click', async () => {
+ const packageName = document.getElementById('packageName').value;
+ if(!packageName) return alert("Package name is required.");
+ const payload = {
+ packageName,
+ packagePrice: document.getElementById('packagePrice').value,
+ packagePerks: document.getElementById('packagePerks').value
+ };
+ if(await postOpportunity(payload, 'Package Added!')) {
+ // Clear inputs
+ document.getElementById('packageName').value = '';
+ document.getElementById('packagePrice').value = '';
+ document.getElementById('packagePerks').value = '';
+ }
+ });
+
+ // Handle Form Submission
+ form.addEventListener('submit', async (e) => {
+ e.preventDefault();
+ 
+ // Get URL params
+ const params = new URLSearchParams(window.location.search);
+ const eventId = params.get('id');
+
+ if (!eventId) {
+ alert("No event ID found. Please create an event first.");
+ return;
+ }
+ 
+ // Get UI elements
+ const btnText = document.getElementById('btnText');
+ const btnSpinner = document.getElementById('btnSpinner');
+ const submitBtn = document.getElementById('submitBtn');
+
+ // Values
+ const roleTitle = document.getElementById('roleTitle').value;
+ const jobType = document.getElementById('jobType').value;
+ const compensation = document.getElementById('compensation').value;
+ const roleDescription = document.getElementById('roleDescription').value;
+
+ const packageName = document.getElementById('packageName').value;
+ const packagePrice = document.getElementById('packagePrice').value;
+ const packagePerks = document.getElementById('packagePerks').value;
+
+ if(!roleTitle && !packageName) {
+ // If everything is empty, just go back to event page since they might have already added them
+ window.location.href = `event_details.html?id=${eventId}`;
+ return;
+ }
+
+ // Set loading state
+ submitBtn.disabled = true;
+ btnText.textContent = 'Saving...';
+ btnSpinner.classList.remove('hidden');
+
+ try {
+ const payload = {
+ roleTitle, jobType, compensation, roleDescription,
+ packageName, packagePrice, packagePerks
+ };
+
+ const response = await fetch(`http://localhost:5000/api/events/${eventId}/opportunities`, {
+ method: 'POST',
+ headers: {
+ 'Content-Type': 'application/json',
+ 'Authorization': `Bearer ${localStorage.getItem('token')}`
+ },
+ body: JSON.stringify(payload)
+ });
+
+ if (response.ok) {
+ document.querySelector('#toastNotification p.font-medium').textContent = 'Opportunities Saved!';
+ document.querySelector('#toastNotification p.text-on-surface-variant').textContent = 'Your job vacancies and sponsorship packages have been added to the event.';
+ showToast();
+ setTimeout(() => {
+ window.location.href = `event_details.html?id=${eventId}`;
+ }, 1500);
+ } else {
+ throw new Error('Failed to save opportunities');
+ }
+ } catch (error) {
+ console.error(error);
+ alert("Error saving opportunities.");
+ submitBtn.disabled = false;
+ btnText.textContent = 'Save Opportunities';
+ btnSpinner.classList.add('hidden');
+ }
+ });
+ });
+
+ // Toast Notification Functions
+ let toastTimeout;
+ 
+ function showToast() {
+ const toast = document.getElementById('toastNotification');
+ toast.classList.remove('translate-x-full', 'opacity-0');
+ toast.classList.add('translate-x-0', 'opacity-100');
+ 
+ clearTimeout(toastTimeout);
+ toastTimeout = setTimeout(() => {
+ hideToast();
+ }, 5000);
+ }
+
+ function hideToast() {
+ const toast = document.getElementById('toastNotification');
+ toast.classList.remove('translate-x-0', 'opacity-100');
+ toast.classList.add('translate-x-full', 'opacity-0');
+ }
+ </script>
+</body>
+</html>
