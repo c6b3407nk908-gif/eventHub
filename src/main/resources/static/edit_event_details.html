@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en" class="antialiased">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>EventHub - Edit Event Details</title>
+ <script src="https://cdn.tailwindcss.com"></script>
+ <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
+ <script>
+ tailwind.config = {
+ theme: {
+ extend: {
+ fontFamily: {
+ display: ['"Bricolage Grotesque"', 'sans-serif'],
+ body: ['"DM Sans"', 'sans-serif'],
+ mono: ['"Courier Prime"', 'monospace'],
+ },
+ colors: {
+ background: '#fdf9f4',
+ surface: '#ffffff',
+ 'surface-variant': '#e6e2dd',
+ primary: '#a7332d',
+ 'primary-container': '#c84b43',
+ secondary: '#456274',
+ tertiary: '#7b550a',
+ ink: '#1c1c19',
+ 'on-background': '#1c1c19',
+ 'on-surface-variant': '#58413f'
+ },
+ boxShadow: {
+ 'retro': '4px 4px 0px #1c1c19',
+ 'retro-hover': '2px 2px 0px #1c1c19',
+ 'retro-sm': '2px 2px 0px #1c1c19',
+ }
+ }
+ }
+ }
+ </script>
+ <style>
+ body { font-family: 'DM Sans', sans-serif; background-color: #fdf9f4; color: #1c1c19; }
+ h1, h2, h3, h4, h5, h6 { font-family: 'Bricolage Grotesque', sans-serif; }
+ .label-stamp { font-family: 'Courier Prime', monospace; text-transform: uppercase; letter-spacing: 0.05em; font-weight: bold; }
+ .btn-retro { border: 3px solid #1c1c19; box-shadow: 4px 4px 0px #1c1c19; transition: all 0.1s ease; }
+ .btn-retro:hover { transform: translate(2px, 2px); box-shadow: 2px 2px 0px #1c1c19; }
+ .btn-retro:active { transform: translate(4px, 4px); box-shadow: none; }
+ .card-retro { border: 3px solid #1c1c19; box-shadow: 4px 4px 0px #1c1c19; transition: all 0.2s ease; }
+ .card-retro:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0px #1c1c19; }
+ .input-retro { border: 3px solid #1c1c19; background-color: #ffffff; }
+ .input-retro:focus { outline: none; box-shadow: 4px 4px 0px #c84b43; }
+ 
+ /* Scrollbar */
+ ::-webkit-scrollbar { width: 12px; border-left: 3px solid #1c1c19; }
+ ::-webkit-scrollbar-track { background: #fdf9f4; }
+ ::-webkit-scrollbar-thumb { background: #1c1c19; border: 2px solid #fdf9f4; }
+ </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col transition-colors duration-300">
+
+ <header class="sticky top-0 z-50 bg-surface border-b border-ink border-[3px] shadow-retro">
+ <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+ <div class="flex justify-between items-center h-20 gap-4">
+ <!-- Logo -->
+ <div class="flex-shrink-0 flex items-center cursor-pointer" onclick="window.location.href='home_page.html'">
+ <svg class="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+ </svg>
+ <span class="ml-2 text-xl font-bold tracking-tight text-on-background">EventHub <span class="text-sm font-medium text-on-surface-variant bg-slate-100 px-2 py-1 btn-retro  rounded ml-2">Edit Mode</span></span>
+ </div>
+ 
+ <!-- Actions -->
+ <div class="flex space-x-3">
+ <button type="button" id="cancelBtn" class="px-4 py-2 btn-retro  border border-ink border-[3px] rounded-lg text-sm font-medium text-slate-700 hover:bg-background transition-colors">
+ Cancel
+ </button>
+ <button type="button" id="saveBtn" class="px-4 py-2 bg-primary btn-retro text-white rounded-lg text-sm font-medium hover:bg-primary transition-colors shadow-retro flex items-center">
+ <span id="saveBtnText">Save Changes</span>
+ <svg id="saveSpinner" class="hidden animate-spin ml-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+ <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+ <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+ </svg>
+ </button>
+ </div>
+ </div>
+ </div>
+ </header>
+
+ <main class="flex-grow py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+ 
+ <div id="loading" class="text-center py-20">
+ <svg class="animate-spin mx-auto h-8 w-8 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+ <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+ <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+ </svg>
+ <p class="mt-4 text-on-surface-variant">Loading event editor...</p>
+ </div>
+
+ <form id="editEventForm" class="hidden">
+ <!-- Hero Banner -->
+ <div class="w-full h-64 sm:h-80 md:h-96 rounded-3xl overflow-hidden relative mb-8 shadow-retro group">
+ <img id="eventHeroImage" src="https://via.placeholder.com/1200x600" alt="Event Banner" class="w-full h-full object-cover">
+ <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-slate-900/20"></div>
+ 
+ <!-- Image Upload Overlay -->
+ <label for="imageUpload" class="absolute top-4 right-4 bg-surface/20 hover:bg-surface/30 backdrop-blur-md border border-white/40 text-white px-4 py-2 btn-retro  rounded-lg cursor-pointer transition-colors flex items-center shadow-retro">
+ <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+ <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+ </svg>
+ Change Cover Image
+ </label>
+ <input type="file" id="imageUpload" class="hidden input-retro rounded-lg " accept="image/*">
+
+ <div class="absolute bottom-0 left-0 p-6 sm:p-10 w-full max-w-4xl flex flex-col items-start gap-2">
+ <select id="eventCategory" required class="inline-block px-3 py-1.5 bg-primary btn-retro/90 border border-brand-400 text-white text-xs font-bold uppercase tracking-wider rounded-md focus:outline-none focus:ring-2 focus:ring-white focus:bg-primary placeholder-white/70 shadow-retro appearance-none cursor-pointer">
+ <option value="" disabled selected>Loading Categories...</option>
+ </select>
+ <input type="text" id="eventTitle" required class="block w-full bg-transparent border-b-2 border-dashed border-white/40 focus:border-white focus:outline-none text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight placeholder-white/50 pb-1 input-retro rounded-lg " placeholder="Enter Event Title">
+ <p class="text-slate-300 text-sm mt-1 italic">Note: The event description handles the subtitle on the public page.</p>
+ </div>
+ </div>
+
+ <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+ 
+ <!-- Left Column: Details & Opportunities -->
+ <div class="lg:col-span-2 space-y-10">
+ 
+ <!-- About Section -->
+ <section class="bg-surface rounded-xl p-6 sm:p-8 shadow-retro border border-ink border-[3px]">
+ <h2 class="text-2xl font-bold text-on-background mb-4">About this event</h2>
+ <textarea id="eventDescription" required rows="10" class="block w-full rounded-xl border border-ink border-[3px] bg-background p-4 text-on-background focus:ring-2 focus:ring-primary focus:border-brand-500 text-base leading-relaxed resize-y shadow-inner" placeholder="Write a detailed description of what attendees can expect..."></textarea>
+ </section>
+
+ <!-- Opportunities Management Callout -->
+ <section class="bg-brand-50 rounded-xl p-6 sm:p-8 border border-brand-100 flex flex-col sm:flex-row items-center justify-between gap-6">
+ <div>
+ <h3 class="text-xl font-bold text-primary">Jobs & Sponsorships</h3>
+ <p class="text-primary mt-1 text-sm">Need to add or modify hiring roles or sponsorship packages for this event?</p>
+ </div>
+ <button type="button" id="manageOppBtn" class="flex-shrink-0 px-5 py-2.5 bg-primary btn-retro text-white rounded-lg font-medium hover:bg-primary transition-colors shadow-retro focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary whitespace-nowrap">
+ Manage Opportunities
+ </button>
+ </section>
+
+ <!-- Opportunities Section: Jobs -->
+ <section id="jobsSection" class="hidden bg-surface rounded-xl p-6 sm:p-8 shadow-retro border border-ink border-[3px]">
+ <div class="flex items-center justify-between mb-6">
+ <div>
+ <h2 class="text-2xl font-bold text-on-background flex items-center">
+ <svg class="h-6 w-6 mr-2 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+ <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 14h.01M9 14h.01" />
+ </svg>
+ Job Roles
+ </h2>
+ </div>
+ </div>
+ <div class="space-y-4" id="jobList"></div>
+ </section>
+
+ <!-- Opportunities Section: Sponsorships -->
+ <section id="sponsorSection" class="hidden bg-surface rounded-xl p-6 sm:p-8 shadow-retro border border-ink border-[3px]">
+ <div class="flex items-center justify-between mb-6">
+ <div>
+ <h2 class="text-2xl font-bold text-on-background flex items-center">
+ <svg class="h-6 w-6 mr-2 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+ </svg>
+ Sponsorship Packages
+ </h2>
+ </div>
+ </div>
+ <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="sponsorList"></div>
+ </section>
+ </div>
+
+ <!-- Right Column: Sticky Quick Facts -->
+ <div class="lg:col-span-1">
+ <div class="sticky top-28 bg-surface rounded-xl p-6 shadow-retro border border-ink border-[3px]">
+ 
+ <h3 class="text-xl font-bold text-on-background mb-6">Quick Facts</h3>
+ 
+ <div class="space-y-6">
+ <!-- Date & Time -->
+ <div class="flex items-start">
+ <div class="flex-shrink-0 mt-1 bg-brand-50 p-2 rounded-lg">
+ <svg class="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+ </svg>
+ </div>
+ <div class="ml-4 w-full">
+ <label class="block text-sm font-medium text-slate-700 mb-1">Date</label>
+ <input type="date" id="eventDate" required class="block w-full rounded-md border border-ink border-[3px] bg-background px-3 py-2 btn-retro  text-sm text-on-background focus:ring-primary focus:border-brand-500 mb-3 input-retro rounded-lg ">
+ 
+ <label class="block text-sm font-medium text-slate-700 mb-1">Time</label>
+ <input type="time" id="eventTime" required class="block w-full rounded-md border border-ink border-[3px] bg-background px-3 py-2 btn-retro  text-sm text-on-background focus:ring-primary focus:border-brand-500 input-retro rounded-lg ">
+ </div>
+ </div>
+
+ <!-- Location -->
+ <div class="flex items-start">
+ <div class="flex-shrink-0 mt-1 bg-brand-50 p-2 rounded-lg">
+ <svg class="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+ <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+ </svg>
+ </div>
+ <div class="ml-4 w-full">
+ <label class="block text-sm font-medium text-slate-700 mb-1">Location</label>
+ <select id="eventLocation" required class="block w-full rounded-md border border-ink border-[3px] bg-background px-3 py-2 btn-retro  text-sm text-on-background focus:ring-primary focus:border-brand-500 appearance-none cursor-pointer">
+ <option value="" disabled selected>Select a location...</option>
+ </select>
+ </div>
+ </div>
+ </div>
+ </div>
+
+ </div>
+ </form>
+ </main>
+
+ <script src="locations.js"></script>
+ <script>
+ const API_URL ="http://localhost:5000/api/events";
+ let currentEvent = null;
+ let eventId = null;
+
+ // Load locations for select
+ const select = document.getElementById('eventLocation');
+ if (typeof LOCATIONS !== 'undefined') {
+ LOCATIONS.forEach(loc => {
+ const option = document.createElement('option');
+ option.value = loc;
+ option.textContent = loc;
+ select.appendChild(option);
+ });
+ 
+ // If event details already loaded before locations, update it
+ if (currentEvent && currentEvent.location) {
+ select.value = currentEvent.location;
+ }
+ }
+
+ document.addEventListener('DOMContentLoaded', async () => {
+ const eventDateInput = document.getElementById('eventDate');
+ if (eventDateInput) {
+ const today = new Date().toISOString().split('T')[0];
+ eventDateInput.min = today;
+ eventDateInput.max ="9999-12-31";
+ }
+
+ const params = new URLSearchParams(window.location.search);
+ eventId = params.get('id');
+ 
+ if (!eventId) {
+ window.location.href = 'profile_page.html';
+ return;
+ }
+
+ // Image upload preview
+ document.getElementById('imageUpload').addEventListener('change', function(e) {
+ if (this.files && this.files[0]) {
+ const reader = new FileReader();
+ reader.onload = function(e) {
+ document.getElementById('eventHeroImage').src = e.target.result;
+ }
+ reader.readAsDataURL(this.files[0]);
+ }
+ });
+
+ document.getElementById('cancelBtn').addEventListener('click', () => {
+ window.location.href = `event_details.html?id=${eventId}`;
+ });
+
+ document.getElementById('manageOppBtn').addEventListener('click', () => {
+ window.location.href = `add_opportunities.html?id=${eventId}`;
+ });
+
+ document.getElementById('saveBtn').addEventListener('click', saveEvent);
+
+ // Fetch Categories
+ try {
+ const catResponse = await fetch('http://localhost:5000/api/events/categories');
+ if (catResponse.ok) {
+ const categories = await catResponse.json();
+ const catSelect = document.getElementById('eventCategory');
+ catSelect.innerHTML = '<option value="" disabled selected>Select a category</option>';
+ categories.forEach(c => {
+ const opt = document.createElement('option');
+ opt.value = c;
+ opt.textContent = c.replace(/_/g, ' ');
+ catSelect.appendChild(opt);
+ });
+ }
+ } catch (e) {
+ console.error('Failed to load categories', e);
+ }
+
+ fetchEventDetails();
+ });
+
+ async function fetchEventDetails() {
+ try {
+ const response = await fetch(`${API_URL}/${eventId}`);
+ if (!response.ok) throw new Error('Event not found');
+ 
+ currentEvent = await response.json();
+ 
+ // Populate inputs
+ if (currentEvent.imageUrl) {
+ document.getElementById('eventHeroImage').src = currentEvent.imageUrl;
+ }
+ document.getElementById('eventTitle').value = currentEvent.eventName || '';
+ 
+ // Keep the old 'eventType' in a hidden field if needed or just use eventType if it is missing category.
+ // Wait, previously `eventCategory` ID was used for eventType. Now we have category.
+ if (currentEvent.category) {
+ document.getElementById('eventCategory').value = currentEvent.category;
+ }
+ 
+ document.getElementById('eventDescription').value = currentEvent.description || '';
+ 
+ if (currentEvent.eventDate) {
+ document.getElementById('eventDate').value = currentEvent.eventDate.split('T')[0];
+ }
+ document.getElementById('eventTime').value = currentEvent.eventTime || '';
+ document.getElementById('eventLocation').value = currentEvent.location || '';
+
+ // Render Jobs
+ if (currentEvent.jobs && currentEvent.jobs.length > 0) {
+ document.getElementById('jobsSection').classList.remove('hidden');
+ const jobList = document.getElementById('jobList');
+ currentEvent.jobs.forEach(job => {
+ jobList.innerHTML += `
+  <div class="bg-background rounded-xl p-5 border border-slate-100 relative group">
+  <button type="button" onclick="deleteJob('${job.roleTitle}')" class="absolute top-4 right-4 text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity" title="Remove Job">
+    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+  </button>
+  <h3 class="text-lg font-bold text-on-background pr-8">${job.roleTitle}</h3>
+  <p class="text-primary text-sm font-medium mt-1">${job.jobType} • ${job.compensation}</p>
+  <p class="text-on-surface-variant text-sm mt-3 leading-relaxed">${job.roleDescription}</p>
+  </div>
+ `;
+ });
+ }
+
+ // Render Sponsorships
+ if (currentEvent.sponsorships && currentEvent.sponsorships.length > 0) {
+ document.getElementById('sponsorSection').classList.remove('hidden');
+ const sponsorList = document.getElementById('sponsorList');
+ currentEvent.sponsorships.forEach(pack => {
+ sponsorList.innerHTML += `
+  <div class="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl p-5 border border-yellow-200/50 relative group">
+  <button type="button" onclick="deleteSponsorship('${pack.packageName}')" class="absolute top-4 right-4 text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity" title="Remove Package">
+    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+  </button>
+  <h3 class="text-lg font-bold text-on-background pr-8">${pack.packageName}</h3>
+  <p class="text-2xl font-black text-yellow-600 mt-2">₹${pack.packagePrice}</p>
+  <p class="text-on-surface-variant text-sm mt-3 leading-relaxed">${pack.packagePerks}</p>
+  </div>
+ `;
+ });
+ }
+
+ document.getElementById('loading').classList.add('hidden');
+ document.getElementById('editEventForm').classList.remove('hidden');
+
+ } catch (error) {
+ alert("Error loading event. Are you sure you're the owner?");
+ window.location.href = 'profile_page.html';
+ }
+ }
+
+ async function saveEvent() {
+ // Basic validation
+ const form = document.getElementById('editEventForm');
+ if (!form.checkValidity()) {
+ form.reportValidity();
+ return;
+ }
+
+ const btnText = document.getElementById('saveBtnText');
+ const btnSpinner = document.getElementById('saveSpinner');
+ const saveBtn = document.getElementById('saveBtn');
+
+ saveBtn.disabled = true;
+ btnText.textContent = 'Saving...';
+ btnSpinner.classList.remove('hidden');
+
+ const formData = new FormData();
+ formData.append('eventName', document.getElementById('eventTitle').value);
+ formData.append('category', document.getElementById('eventCategory').value);
+ formData.append('eventType', currentEvent.eventType || 'other');
+ formData.append('description', document.getElementById('eventDescription').value);
+ formData.append('eventDate', document.getElementById('eventDate').value);
+ formData.append('eventTime', document.getElementById('eventTime').value);
+ formData.append('location', document.getElementById('eventLocation').value);
+
+ const fileInput = document.getElementById('imageUpload');
+ if (fileInput.files.length > 0) {
+ formData.append('image', fileInput.files[0]);
+ }
+
+ const token = localStorage.getItem('token');
+
+ try {
+ const response = await fetch(`${API_URL}/${eventId}`, {
+ method: 'PUT',
+ headers: {
+ 'Authorization': 'Bearer ' + token
+ },
+ body: formData
+ });
+
+ if (response.ok) {
+ // Redirect back to standard details view
+ window.location.href = `event_details.html?id=${eventId}`;
+ } else {
+ throw new Error('Failed to update event');
+ }
+ } catch (error) {
+ alert('Error updating event: ' + error.message);
+ saveBtn.disabled = false;
+ btnText.textContent = 'Save Changes';
+ btnSpinner.classList.add('hidden');
+ }
+ }
+ </script>
+</body>
+</html>

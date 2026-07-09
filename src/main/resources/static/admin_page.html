@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>EventHub - Admin Control Grid</title>
+ <script src="https://cdn.tailwindcss.com"></script>
+ <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
+ <script>
+ tailwind.config = {
+ theme: {
+ extend: {
+ fontFamily: {
+ display: ['"Bricolage Grotesque"', 'sans-serif'],
+ body: ['"DM Sans"', 'sans-serif'],
+ mono: ['"Courier Prime"', 'monospace'],
+ },
+ colors: {
+ background: '#fdf9f4',
+ surface: '#ffffff',
+ 'surface-variant': '#e6e2dd',
+ primary: '#a7332d',
+ 'primary-container': '#c84b43',
+ secondary: '#456274',
+ tertiary: '#7b550a',
+ ink: '#1c1c19',
+ 'on-background': '#1c1c19',
+ 'on-surface-variant': '#58413f'
+ },
+ boxShadow: {
+ 'retro': '4px 4px 0px #1c1c19',
+ 'retro-hover': '2px 2px 0px #1c1c19',
+ 'retro-sm': '2px 2px 0px #1c1c19',
+ }
+ }
+ }
+ }
+ </script>
+ <style>
+ body { font-family: 'DM Sans', sans-serif; background-color: #fdf9f4; color: #1c1c19; }
+ h1, h2, h3, h4, h5, h6 { font-family: 'Bricolage Grotesque', sans-serif; }
+ .label-stamp { font-family: 'Courier Prime', monospace; text-transform: uppercase; letter-spacing: 0.05em; font-weight: bold; }
+ .btn-retro { border: 3px solid #1c1c19; box-shadow: 4px 4px 0px #1c1c19; transition: all 0.1s ease; }
+ .btn-retro:hover { transform: translate(2px, 2px); box-shadow: 2px 2px 0px #1c1c19; }
+ .btn-retro:active { transform: translate(4px, 4px); box-shadow: none; }
+ .card-retro { border: 3px solid #1c1c19; box-shadow: 4px 4px 0px #1c1c19; transition: all 0.2s ease; }
+ .card-retro:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0px #1c1c19; }
+ .input-retro { border: 3px solid #1c1c19; background-color: #ffffff; }
+ .input-retro:focus { outline: none; box-shadow: 4px 4px 0px #c84b43; }
+ 
+ /* Scrollbar */
+ ::-webkit-scrollbar { width: 12px; border-left: 3px solid #1c1c19; }
+ ::-webkit-scrollbar-track { background: #fdf9f4; }
+ ::-webkit-scrollbar-thumb { background: #1c1c19; border: 2px solid #fdf9f4; }
+ </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-sans antialiased pb-16">
+
+ <!-- Top Menu Bar -->
+ <header class="sticky top-0 z-50 bg-surface border-b border-ink border-[3px] shadow-retro">
+ <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+ <div class="flex justify-between items-center h-20 gap-4">
+ <!-- Logo / Brand -->
+ <div class="flex-shrink-0 flex items-center gap-2 cursor-pointer" onclick="showGridMenu()">
+ <svg class="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+ </svg>
+ <span class="text-xl font-bold tracking-tight text-on-background">EventHub</span>
+ <span class="text-[10px] font-extrabold px-3 py-1 rounded-full bg-primary/10 text-primary border-2 border-primary/20 ml-1 label-stamp">Admin Panel</span>
+ </div>
+
+ <!-- Navigation / Actions -->
+ <div class="flex items-center gap-3">
+ <a href="home_page.html" class="inline-flex items-center justify-center px-4 py-2 border border-ink border-[3px] text-xs font-bold rounded-lg text-on-background bg-surface btn-retro shadow-retro hover:shadow-retro-hover transition-all">
+ Home Screen
+ </a>
+ <button id="logoutBtn" class="inline-flex items-center justify-center px-4 py-2 border border-ink border-[3px] text-xs font-bold rounded-lg text-white bg-primary btn-retro shadow-retro hover:shadow-retro-hover transition-all">
+ Sign Out
+ </button>
+ </div>
+ </div>
+ </div>
+ </header>
+
+ <!-- MAIN DASHBOARD CONTENT -->
+ <main class="max-w-7xl w-full mx-auto px-6 sm:px-8 mt-8 flex-grow flex flex-col justify-start">
+ 
+ <!-- ================= GRID MENU: ONLY TILE NAMES ================= -->
+ <div id="grid-menu" class="space-y-8">
+ 
+  <!-- Hero Welcome Banner -->
+  <div class="bg-surface-variant/30 border-ink border-[3px] rounded-2xl p-6 sm:p-8 shadow-retro flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+  <div class="space-y-2 max-w-2xl">
+  <h1 class="text-3xl sm:text-4xl font-extrabold text-on-background tracking-tight">
+  Admin Dashboard
+  </h1>
+  </div>
+  </div>
+
+  <!-- ROW: 3 TILES -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+  
+  <!-- Tile 1: Events -->
+  <div onclick="showDetail('detail-events')" class="relative overflow-hidden bg-surface border-ink border-[3px] rounded-2xl shadow-retro hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-retro-hover transition-all cursor-pointer flex flex-col h-64 group">
+  <!-- Top Colored Accent Bar -->
+  <div class="h-4 bg-primary border-b border-ink border-[3px]"></div>
+  <div class="p-6 flex-grow flex flex-col justify-between">
+  <div class="flex items-center justify-between">
+  <div class="w-14 h-14 bg-primary/10 text-primary border-ink border-[3px] text-3xl flex items-center justify-center rounded-xl group-hover:rotate-6 transition-transform">📅</div>
+  <span class="text-[9px] font-extrabold uppercase tracking-widest label-stamp px-2 py-0.5 bg-primary/10 text-primary rounded-full border border-primary/20">Events</span>
+  </div>
+  <div class="mt-4">
+  <h3 class="text-xl font-bold text-on-background">Events Management</h3>
+  <p class="text-xs text-on-surface-variant mt-1 font-bold">Manage active and completed event schedules</p>
+  </div>
+  <div class="flex gap-2 mt-4 text-[10px] font-extrabold label-stamp">
+  <span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 border-ink border-[2px] rounded-lg shadow-retro-sm"><span id="cardActiveCount">0</span> Active</span>
+  <span class="px-2.5 py-1 bg-slate-100 text-on-surface-variant border-ink border-[2px] rounded-lg shadow-retro-sm"><span id="cardCompletedCount">0</span> Completed</span>
+  </div>
+  </div>
+  </div>
+
+  <!-- Tile 2: Users -->
+  <div onclick="showDetail('detail-users')" class="relative overflow-hidden bg-surface border-ink border-[3px] rounded-2xl shadow-retro hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-retro-hover transition-all cursor-pointer flex flex-col h-64 group">
+  <!-- Top Colored Accent Bar -->
+  <div class="h-4 bg-secondary border-b border-ink border-[3px]"></div>
+  <div class="p-6 flex-grow flex flex-col justify-between">
+  <div class="flex items-center justify-between">
+  <div class="w-14 h-14 bg-secondary/10 text-secondary border-ink border-[3px] text-3xl flex items-center justify-center rounded-xl group-hover:-rotate-6 transition-transform">👤</div>
+  <span class="text-[9px] font-extrabold uppercase tracking-widest label-stamp px-2 py-0.5 bg-secondary/10 text-secondary rounded-full border border-secondary/20">Accounts</span>
+  </div>
+  <div class="mt-4">
+  <h3 class="text-xl font-bold text-on-background">Users Directory</h3>
+  <p class="text-xs text-on-surface-variant mt-1 font-bold">Manage system users and access permissions</p>
+  </div>
+  <div class="flex mt-4 text-[10px] font-extrabold label-stamp">
+  <span class="px-2.5 py-1 bg-secondary/10 text-secondary border-ink border-[2px] rounded-lg shadow-retro-sm"><span id="cardUsersCount">0</span> Total Users</span>
+  </div>
+  </div>
+  </div>
+
+  <!-- Tile 3: Feedback & Reports -->
+  <div onclick="showDetail('detail-feedback')" class="relative overflow-hidden bg-surface border-ink border-[3px] rounded-2xl shadow-retro hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-retro-hover transition-all cursor-pointer flex flex-col h-64 group">
+  <!-- Top Colored Accent Bar -->
+  <div class="h-4 bg-tertiary border-b border-ink border-[3px]"></div>
+  <div class="p-6 flex-grow flex flex-col justify-between">
+  <div class="flex items-center justify-between">
+  <div class="w-14 h-14 bg-tertiary/10 text-tertiary border-ink border-[3px] text-3xl flex items-center justify-center rounded-xl group-hover:scale-110 transition-transform">💬</div>
+  <span class="text-[9px] font-extrabold uppercase tracking-widest label-stamp px-2 py-0.5 bg-tertiary/10 text-tertiary rounded-full border border-tertiary/20">Logs</span>
+  </div>
+  <div class="mt-4">
+  <h3 class="text-xl font-bold text-on-background">Feedback & Reports</h3>
+  <p class="text-xs text-on-surface-variant mt-1 font-bold">Process website feedback and security reports</p>
+  </div>
+  <div class="flex mt-4 text-[10px] font-extrabold label-stamp">
+  <span class="px-2.5 py-1 bg-tertiary/10 text-tertiary border-ink border-[2px] rounded-lg shadow-retro-sm"><span id="cardFeedbackCount">0</span> Reviews & Reports</span>
+  </div>
+  </div>
+  </div>
+
+  </div>
+
+ </div>
+
+ <!-- ================= DETAIL CONTAINERS: HIDDEN BY DEFAULT ================= -->
+ <div id="detail-container" class="hidden space-y-8">
+
+ <!-- DETAIL: EVENTS LIST -->
+ <section id="detail-events" class="detail-section hidden bg-surface border-ink border-[3px] rounded-2xl shadow-retro flex flex-col h-[520px]">
+ <div class="p-5 border-b-[3px] border-ink flex items-center justify-between bg-background rounded-t-xl">
+ <div class="flex items-center gap-3">
+ <button type="button" onclick="showGridMenu()" class="px-3 py-1.5 btn-retro bg-surface text-on-background text-xs font-bold rounded-lg flex items-center gap-1.5 hover:-translate-x-0.5 duration-200">
+ <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+ </svg>
+ Back
+ </button>
+ <h2 class="font-extrabold text-base text-on-background flex items-center gap-2">
+ <span class="p-1.5 bg-primary/10 text-primary border border-primary/20 rounded-lg">📅</span>
+ Events Management
+ </h2>
+ </div>
+ <div class="flex items-center gap-3">
+ <button onclick="showDetail('detail-create-event')" class="px-3 py-1.5 btn-retro bg-primary text-white text-xs font-extrabold rounded-lg flex items-center gap-1">
+ <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+ </svg>
+ Create Event
+ </button>
+ <span id="eventCounter" class="text-xs font-bold bg-primary/10 text-primary px-2.5 py-1 rounded-full border border-primary/20">
+ 0 Total
+ </span>
+ </div>
+ </div>
+ 
+ <!-- Tab Buttons -->
+ <div class="flex border-b-[3px] border-ink bg-background px-5 py-3 gap-2">
+ <button onclick="switchEventTab('active')" id="tabActiveBtn" class="px-4 py-2 btn-retro text-xs font-bold rounded-xl bg-primary text-white">
+ Active Events (<span id="activeTabCount">0</span>)
+ </button>
+ <button onclick="switchEventTab('completed')" id="tabCompletedBtn" class="px-4 py-2 btn-retro text-xs font-bold rounded-xl bg-surface text-on-surface-variant hover:bg-surface-variant/30">
+ Completed Events (<span id="completedTabCount">0</span>)
+ </button>
+ </div>
+ 
+ <div class="p-4 border-b-[3px] border-ink bg-background/20">
+ <div class="relative text-xs">
+ <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-on-surface-variant/40">
+ <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+ </span>
+ <input type="text" id="eventSearch" oninput="filterEvents()" placeholder="Search by name, location, category..." class="block w-full pl-9 pr-4 py-2.5 border-[3px] border-ink bg-surface text-on-background placeholder-on-surface-variant/40 focus:outline-none focus:ring-0 focus:border-primary input-retro rounded-lg">
+ </div>
+ </div>
+
+ <div class="p-5 flex-grow overflow-y-auto select-text">
+ <div id="activeEventsContainer" class="space-y-3"></div>
+ <div id="completedEventsContainer" class="space-y-3 hidden"></div>
+ </div>
+ </section>
+
+ <!-- DETAIL: CREATE EVENT -->
+ <section id="detail-create-event" class="detail-section hidden bg-surface border-ink border-[3px] rounded-2xl shadow-retro flex flex-col h-[520px]">
+ <div class="p-5 border-b-[3px] border-ink flex items-center justify-between bg-background rounded-t-xl">
+ <div class="flex items-center gap-3">
+ <button type="button" onclick="showDetail('detail-events')" class="px-3 py-1.5 btn-retro bg-surface text-on-background text-xs font-bold rounded-lg flex items-center gap-1.5 hover:-translate-x-0.5 duration-200">
+ <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+ </svg>
+ Back
+ </button>
+ <h2 class="font-extrabold text-base text-on-background flex items-center gap-2">
+ <span class="p-1.5 bg-primary/10 text-primary border border-primary/20 rounded-lg">➕</span>
+ Create New Event
+ </h2>
+ </div>
+ </div>
+
+ <div class="p-5 flex-grow overflow-y-auto select-text">
+ <form id="eventForm" class="max-w-xl mx-auto space-y-4 text-xs">
+ <div>
+ <label for="eventTitle" class="block text-[10px] font-extrabold text-on-surface-variant mb-1.5 uppercase label-stamp">Event Title *</label>
+ <input type="text" id="eventTitle" required class="block w-full px-3 py-2 border-[3px] border-ink bg-surface text-on-background focus:outline-none focus:border-primary input-retro rounded-lg">
+ </div>
+
+ <div>
+ <label for="eventType" class="block text-[10px] font-extrabold text-on-surface-variant mb-1.5 uppercase label-stamp">Category Segment *</label>
+ <select id="eventType" required class="block w-full px-3 py-2 border-[3px] border-ink bg-surface text-on-background focus:outline-none focus:border-primary input-retro rounded-lg cursor-pointer">
+ <option value="" disabled selected>SELECT CATEGORY</option>
+ <option value="music">Music & Concerts</option>
+ <option value="tech">Technology & Business</option>
+ <option value="comedy">Comedy & Entertainment</option>
+ <option value="sports">Sports & Fitness</option>
+ <option value="workshop">Workshops & Education</option>
+ <option value="other">Other</option>
+ </select>
+ </div>
+
+ <div>
+ <label for="eventDescription" class="block text-[10px] font-extrabold text-on-surface-variant mb-1.5 uppercase label-stamp">Description Details *</label>
+ <textarea id="eventDescription" rows="3" required class="block w-full px-3 py-2 border-[3px] border-ink bg-surface text-on-background focus:outline-none focus:border-primary input-retro rounded-lg resize-none"></textarea>
+ </div>
+
+ <div class="grid grid-cols-2 gap-4">
+ <div>
+ <label for="eventDateTime" class="block text-[10px] font-extrabold text-on-surface-variant mb-1.5 uppercase label-stamp">Date & Time *</label>
+ <input type="datetime-local" id="eventDateTime" required class="block w-full px-3 py-2 border-[3px] border-ink bg-surface text-on-background focus:outline-none focus:border-primary input-retro rounded-lg">
+ </div>
+ <div>
+ <label for="eventLocation" class="block text-[10px] font-extrabold text-on-surface-variant mb-1.5 uppercase label-stamp">Location *</label>
+ <select id="eventLocation" required class="block w-full px-3 py-2 border-[3px] border-ink bg-surface text-on-background focus:outline-none focus:border-primary input-retro rounded-lg cursor-pointer">
+ <option value="" disabled selected>SELECT LOCATION</option>
+ </select>
+ </div>
+ </div>
+
+ <div>
+ <label class="block text-[10px] font-extrabold text-on-surface-variant mb-1.5 uppercase label-stamp">Upload Event Image</label>
+ <input type="file" id="eventImage" accept="image/*" class="block w-full text-[10px] text-on-surface-variant file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-[3px] file:border-ink file:text-[10px] file:font-extrabold file:bg-surface file:text-on-background hover:file:bg-background cursor-pointer input-retro rounded-lg">
+ </div>
+
+ <div class="grid grid-cols-2 gap-4 text-[10px] pt-1">
+ <div class="flex items-center justify-between p-3 border-[3px] border-ink bg-background rounded-xl">
+ <div>
+ <label for="jobVacancy" class="font-extrabold text-on-background label-stamp">JOB VACANCIES</label>
+ <p class="text-[8px] text-on-surface-variant font-bold">Offer jobs at event</p>
+ </div>
+ <input type="checkbox" id="jobVacancy" class="h-5 w-5 border-[3px] border-ink bg-surface text-primary focus:ring-0 cursor-pointer rounded-md">
+ </div>
+ <div class="flex items-center justify-between p-3 border-[3px] border-ink bg-background rounded-xl">
+ <div>
+ <label for="adsOpportunity" class="font-extrabold text-on-background label-stamp">SPONSORSHIPS</label>
+ <p class="text-[8px] text-on-surface-variant font-bold">Open to sponsors</p>
+ </div>
+ <input type="checkbox" id="adsOpportunity" class="h-5 w-5 border-[3px] border-ink bg-surface text-primary focus:ring-0 cursor-pointer rounded-md">
+ </div>
+ </div>
+
+ <button type="submit" id="submitEventBtn" class="w-full flex justify-center py-3 bg-primary text-white btn-retro rounded-xl font-bold tracking-wider uppercase text-xs">
+ <span id="btnText">Create Event</span>
+ <svg id="btnSpinner" class="hidden animate-spin ml-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+ <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+ <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+ </svg>
+ </button>
+ </form>
+ </div>
+ </section>
+
+ <!-- DETAIL: USER DIRECTORY -->
+ <section id="detail-users" class="detail-section hidden bg-surface border-ink border-[3px] rounded-2xl shadow-retro flex flex-col h-[520px]">
+ <div class="p-5 border-b-[3px] border-ink flex items-center justify-between bg-background rounded-t-xl">
+ <div class="flex items-center gap-3">
+ <button type="button" onclick="showGridMenu()" class="px-3 py-1.5 btn-retro bg-surface text-on-background text-xs font-bold rounded-lg flex items-center gap-1.5 hover:-translate-x-0.5 duration-200">
+ <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+ </svg>
+ Back
+ </button>
+ <h2 class="font-extrabold text-base text-on-background flex items-center gap-2">
+ <span class="p-1.5 bg-secondary/10 text-secondary border border-secondary/20 rounded-lg">👤</span>
+ User Management Directory
+ </h2>
+ </div>
+ <span id="userCounter" class="text-xs font-bold bg-secondary/10 text-secondary px-2.5 py-1 rounded-full border border-secondary/20">
+ 0 Users
+ </span>
+ </div>
+
+ <div class="p-4 border-b-[3px] border-ink bg-background/20">
+ <div class="relative text-xs">
+ <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-on-surface-variant/40">
+ <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+ </span>
+ <input type="text" id="userSearch" oninput="filterUsers()" placeholder="Search directory by name or email..." class="block w-full pl-9 pr-4 py-2.5 border-[3px] border-ink bg-surface text-on-background placeholder-on-surface-variant/40 focus:outline-none focus:ring-0 focus:border-secondary input-retro rounded-lg">
+ </div>
+ </div>
+
+ <div class="flex-grow overflow-auto p-4 select-text">
+ <table class="min-w-full text-left text-xs">
+ <thead class="bg-surface-variant/40 text-on-background font-extrabold uppercase tracking-wider border-b-[3px] border-ink">
+ <tr>
+ <th class="px-6 py-4 text-xs">Details</th>
+ <th class="px-6 py-4 text-xs">Register Date</th>
+ <th class="px-6 py-4 text-xs">Status</th>
+ <th class="px-6 py-4 text-xs text-right">Actions</th>
+ </tr>
+ </thead>
+ <tbody id="usersTableBody" class="divide-y-2 divide-ink/10"></tbody>
+ </table>
+ </div>
+ </section>
+
+ <!-- DETAIL: FEEDBACKS LOG -->
+ <section id="detail-feedback" class="detail-section hidden bg-surface border-ink border-[3px] rounded-2xl shadow-retro flex flex-col h-[520px]">
+ <div class="p-5 border-b-[3px] border-ink flex items-center justify-between bg-background rounded-t-xl">
+ <div class="flex items-center gap-3">
+ <button type="button" onclick="showGridMenu()" class="px-3 py-1.5 btn-retro bg-surface text-on-background text-xs font-bold rounded-lg flex items-center gap-1.5 hover:-translate-x-0.5 duration-200">
+ <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+ <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+ </svg>
+ Back
+ </button>
+ <h2 class="font-extrabold text-base text-on-background flex items-center gap-2">
+ <span class="p-1.5 bg-tertiary/10 text-tertiary border border-tertiary/20 rounded-lg">💬</span>
+ Feedback Management
+ </h2>
+ </div>
+ <span id="feedbackCounter" class="text-xs font-bold bg-tertiary/10 text-tertiary px-2.5 py-1 rounded-full border border-tertiary/20">
+ 0 Logs
+ </span>
+ </div>
+
+ <!-- Tab Buttons -->
+ <div class="flex border-b-[3px] border-ink bg-background px-5 py-3 gap-2 flex-wrap">
+ <button onclick="switchFeedbackTab('website')" id="tabWebsiteFeedbackBtn" class="px-4 py-2 btn-retro text-xs font-bold rounded-xl bg-primary text-white">
+ Website Feedback (<span id="websiteFeedbackTabCount">0</span>)
+ </button>
+ <button onclick="switchFeedbackTab('reports')" id="tabEventReportsBtn" class="px-4 py-2 btn-retro text-xs font-bold rounded-xl bg-surface text-on-surface-variant hover:bg-surface-variant/30">
+ Event Reports (<span id="eventReportsTabCount">0</span>)
+ </button>
+ <button onclick="switchFeedbackTab('applicant-reports')" id="tabApplicantReportsBtn" class="px-4 py-2 btn-retro text-xs font-bold rounded-xl bg-surface text-on-surface-variant hover:bg-surface-variant/30">
+ Applicant Reports (<span id="applicantReportsTabCount">0</span>)
+ </button>
+ </div>
+
+ <div class="p-5 flex-grow overflow-y-auto select-text">
+ <div id="websiteFeedbackContainer" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+ <div id="eventReportsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-6 hidden"></div>
+ <div id="applicantReportsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-6 hidden"></div>
+ </div>
+ </section>
+
+ </div>
+
+ </main>
+
+ <!-- CUSTOM CONFIRMATION POPUP MODAL (Clean Bright Alert style) -->
+ <div id="confirmModal" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true">
+ <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity"></div>
+ <div class="fixed inset-0 z-10 w-screen overflow-y-auto flex items-center justify-center p-4">
+ <div class="relative bg-surface border border-ink border-[3px]/80 p-6 w-full max-w-md rounded-xl shadow-xl flex flex-col space-y-4 font-sans text-sm">
+ <div class="flex items-center gap-3">
+ <div class="h-10 w-10 bg-rose-50 text-rose-600 rounded-full flex items-center justify-center border border-rose-100">
+ <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+ </svg>
+ </div>
+ <h3 id="confirmModalTitle" class="text-base font-extrabold text-on-background uppercase tracking-wide">
+ Confirm Action
+ </h3>
+ </div>
+ <p id="confirmModalMessage" class="text-xs text-on-surface-variant leading-relaxed bg-background p-4 border border-slate-100 rounded-xl">
+ Are you sure you want to proceed? This cannot be undone.
+ </p>
+ <div class="flex justify-end space-x-3 pt-2">
+ <button type="button" onclick="closeConfirmModal()" class="px-4 py-2 btn-retro  border border-ink border-[3px] hover:bg-background text-on-surface-variant text-xs font-bold rounded-xl transition-all">
+ Cancel
+ </button>
+ <button type="button" id="confirmModalBtn" class="px-4 py-2 btn-retro  bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl transition-all hover:shadow-retro">
+ Confirm
+ </button>
+ </div>
+ </div>
+ </div>
+ </div>
+
+ <!-- TOAST NOTIFICATION -->
+ <div id="toastNotification" class="fixed top-4 right-4 max-w-sm w-full bg-surface border border-slate-100 shadow-xl shadow-slate-200/50 rounded-xl pointer-events-auto overflow-hidden transform translate-x-full opacity-0 transition-all duration-300 z-50">
+ <div class="p-4 relative">
+ <div class="absolute left-0 top-0 h-full w-1.5 bg-indigo-600"></div>
+ <div class="flex items-start pl-2">
+ <div class="flex-shrink-0">
+ <svg id="toastIcon" class="h-5 w-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+ <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+ </svg>
+ </div>
+ <div class="ml-3 w-0 flex-1 pt-0.5 text-xs font-sans">
+ <p id="toastTitle" class="font-extrabold text-on-background tracking-wide uppercase">Action Done</p>
+ <p id="toastMessage" class="mt-1 text-slate-400">// Database status sync completed.</p>
+ </div>
+ </div>
+ </div>
+ </div>
+
+ <!-- SCRIPTS -->
+ <script src="locations.js"></script>
+ <script>
+  const EVENTS_API_URL = 'http://localhost:5000/api/events'; 
+  const USERS_API_URL = 'http://localhost:5000/api/users';
+  const FEEDBACKS_API_URL = 'http://localhost:5000/api/feedbacks';
+  const REPORTS_API_URL = 'http://localhost:5000/api/reports';
+  const APPLICANT_REPORTS_API_URL = 'http://localhost:5000/api/applicant-reports';
+
+  let eventsList = [];
+  let usersList = [];
+  let feedbacksList = [];
+  let reportsList = [];
+  let applicantReportsList = [];
+  let onConfirmAction = null;
+
+
+ // Grid Menu Panel switcher
+ function showDetail(sectionId) {
+ document.getElementById('grid-menu').classList.add('hidden');
+ document.getElementById('detail-container').classList.remove('hidden');
+ 
+ document.querySelectorAll('.detail-section').forEach(section => {
+ section.classList.add('hidden');
+ });
+ document.getElementById(sectionId).classList.remove('hidden');
+ window.scrollTo({ top: 0, behavior: 'smooth' });
+ }
+
+ function showGridMenu() {
+ document.getElementById('detail-container').classList.add('hidden');
+ document.getElementById('grid-menu').classList.remove('hidden');
+ window.scrollTo({ top: 0, behavior: 'smooth' });
+ }
+
+ // Load locations for select dropdown
+ const selectLocation = document.getElementById('eventLocation');
+ if (typeof LOCATIONS !== 'undefined') {
+ LOCATIONS.forEach(loc => {
+ const option = document.createElement('option');
+ option.value = loc;
+ option.textContent = loc;
+ selectLocation.appendChild(option);
+ });
+ }
+
+ document.addEventListener('DOMContentLoaded', () => {
+ const token = localStorage.getItem('token');
+ const user = JSON.parse(localStorage.getItem('user') || '{}');
+ const ADMIN_EMAIL_SPECIFIC ="admin@gmail.com"; 
+
+ if (!token || user.email !== ADMIN_EMAIL_SPECIFIC) {
+ alert('Access Unauthorized. Admin token credentials missing or invalid.');
+ window.location.href = 'home_page.html';
+ return;
+ }
+
+ const eventForm = document.getElementById('eventForm');
+ const logoutBtn = document.getElementById('logoutBtn');
+
+ // Initial Fetch
+ fetchData();
+
+ // Form Submit Callback (Create Event)
+ eventForm.addEventListener('submit', async (e) => {
+ e.preventDefault();
+ 
+ const submitEventBtn = document.getElementById('submitEventBtn');
+ const btnText = document.getElementById('btnText');
+ const btnSpinner = document.getElementById('btnSpinner');
+
+ submitEventBtn.disabled = true;
+ btnText.textContent = 'Saving...';
+ btnSpinner.classList.remove('hidden');
+
+ const formData = new FormData();
+ formData.append('eventName', document.getElementById('eventTitle').value);
+ formData.append('eventType', document.getElementById('eventType').value);
+ formData.append('description', document.getElementById('eventDescription').value);
+ 
+ const dateTimeVal = document.getElementById('eventDateTime').value;
+ const parts = dateTimeVal.split('T');
+ formData.append('eventDate', parts[0]);
+ formData.append('eventTime', parts[1]);
+ 
+ formData.append('location', document.getElementById('eventLocation').value);
+ formData.append('jobVacancy', document.getElementById('jobVacancy').checked);
+ formData.append('adsOpportunity', document.getElementById('adsOpportunity').checked);
+ 
+ const imageInput = document.getElementById('eventImage');
+ if (imageInput.files.length > 0) {
+ formData.append('image', imageInput.files[0]);
+ }
+
+ if (user.id) {
+ formData.append('organizerId', user.id);
+ }
+
+ try {
+ const response = await fetch(EVENTS_API_URL, {
+ method: 'POST',
+ headers: { 
+ 'Authorization': `Bearer ${token}`
+ },
+ body: formData
+ });
+
+ if (response.ok) {
+ eventForm.reset();
+ triggerToast('Success', 'Event added successfully to directory!');
+ fetchData();
+ showDetail('detail-events'); // Go to events list to view it
+ } else {
+ const errText = await response.text();
+ let errorMsg = 'Failed to publish event';
+ try {
+ const errJson = JSON.parse(errText);
+ errorMsg = errJson.error || errorMsg;
+ } catch (e) {
+ errorMsg = errText || errorMsg;
+ }
+ throw new Error(errorMsg);
+ }
+ } catch (error) {
+ alert(error.message);
+ } finally {
+ submitEventBtn.disabled = false;
+ btnText.textContent = 'Create Event';
+ btnSpinner.classList.add('hidden');
+ }
+ });
+
+ // Sign Out Routine Execution
+ logoutBtn.addEventListener('click', () => {
+ localStorage.removeItem('token');
+ localStorage.removeItem('user');
+ window.location.href = 'home_page.html';
+ });
+ });
+
+  // Fetch all backend datasets for the dashboard
+  async function fetchData() {
+    const token = localStorage.getItem('token');
+    const headers = { 'Authorization': `Bearer ${token}` };
+
+    try {
+      const eventsRes = await fetch(`${EVENTS_API_URL}?size=1000`, { headers });
+      const eventsData = await eventsRes.json();
+      eventsList = eventsData.content || [];
+      
+      const usersRes = await fetch(USERS_API_URL, { headers });
+      usersList = await usersRes.json();
+
+      const feedbackRes = await fetch(FEEDBACKS_API_URL, { headers });
+      feedbacksList = await feedbackRes.json();
+
+      const reportsRes = await fetch(REPORTS_API_URL, { headers });
+      reportsList = await reportsRes.json();
+
+      const applicantReportsRes = await fetch(APPLICANT_REPORTS_API_URL, { headers });
+      applicantReportsList = await applicantReportsRes.json();
+
+      updateDashboardStats();
+      renderEventsList(eventsList);
+      renderUsersTable(usersList);
+      renderFeedbacks(feedbacksList);
+      renderReports(reportsList, applicantReportsList);
+
+    } catch (err) {
+      console.error("Error fetching admin dashboard datasets:", err);
+    }
+  }
+
+  // Calculate and display statistics on main menu cards
+  function updateDashboardStats() {
+    const activeCount = eventsList.filter(e => e.status === 'coming' || e.status === 'ongoing').length;
+    const completedCount = eventsList.filter(e => e.status === 'completed').length;
+
+    const websiteFeedbackCount = feedbacksList.filter(item => item.eventId === 'website').length;
+
+    document.getElementById('cardActiveCount').textContent = activeCount;
+    document.getElementById('cardCompletedCount').textContent = completedCount;
+    document.getElementById('cardUsersCount').textContent = usersList.length;
+    document.getElementById('cardFeedbackCount').textContent = websiteFeedbackCount + reportsList.length + applicantReportsList.length;
+  }
+
+ // Helper to render event status badge HTML
+ function getStatusBadgeHtml(status) {
+ if (status === 'ongoing') {
+ return `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-primary btn-retro/10 text-blue-750 border border-blue-200">🔵 Ongoing</span>`;
+ } else if (status === 'coming') {
+ return `<span class="inline-flex items-center px-2 py-0 btn-retro .5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">🟢 Coming</span>`;
+ } else {
+ return `<span class="inline-flex items-center px-2 py-0 btn-retro .5 rounded-full text-[10px] font-semibold bg-slate-100 text-on-surface-variant border border-ink border-[3px]">⚫ Completed</span>`;
+ }
+ }
+
+ let currentEventTab = 'active';
+
+ function switchEventTab(tab) {
+ currentEventTab = tab;
+ 
+ const tabActiveBtn = document.getElementById('tabActiveBtn');
+ const tabCompletedBtn = document.getElementById('tabCompletedBtn');
+ const activeContainer = document.getElementById('activeEventsContainer');
+ const completedContainer = document.getElementById('completedEventsContainer');
+ 
+ if (tab === 'active') {
+ tabActiveBtn.className = "px-4 py-2 btn-retro text-xs font-bold rounded-xl bg-primary text-white";
+ tabCompletedBtn.className = "px-4 py-2 btn-retro text-xs font-bold rounded-xl bg-surface text-on-surface-variant hover:bg-surface-variant/30";
+ activeContainer.classList.remove('hidden');
+ completedContainer.classList.add('hidden');
+ } else {
+ tabActiveBtn.className = "px-4 py-2 btn-retro text-xs font-bold rounded-xl bg-surface text-on-surface-variant hover:bg-surface-variant/30";
+ tabCompletedBtn.className = "px-4 py-2 btn-retro text-xs font-bold rounded-xl bg-primary text-white";
+ activeContainer.classList.add('hidden');
+ completedContainer.classList.remove('hidden');
+ }
+ }
+
+ // Render Events panel lists into Active / Completed containers
+ function renderEventsList(list) {
+ const activeContainer = document.getElementById('activeEventsContainer');
+ const completedContainer = document.getElementById('completedEventsContainer');
+ const activeTabCount = document.getElementById('activeTabCount');
+ const completedTabCount = document.getElementById('completedTabCount');
+ const counter = document.getElementById('eventCounter');
+
+ const activeList = list.filter(item => item.status === 'coming' || item.status === 'ongoing');
+ const completedList = list.filter(item => item.status === 'completed');
+
+ activeTabCount.textContent = activeList.length;
+ completedTabCount.textContent = completedList.length;
+ counter.textContent = `${list.length} Total`;
+
+ activeContainer.innerHTML = '';
+ completedContainer.innerHTML = '';
+
+ if (activeList.length === 0) {
+ activeContainer.innerHTML = `
+ <div class="text-center py-10 border border-slate-100 bg-background rounded-xl">
+ <p class="text-xs text-slate-400">No active events found.</p>
+ </div>`;
+ } else {
+ activeList.forEach(item => {
+ activeContainer.appendChild(createEventElement(item));
+ });
+ }
+
+ if (completedList.length === 0) {
+ completedContainer.innerHTML = `
+ <div class="text-center py-10 border border-slate-100 bg-background rounded-xl">
+ <p class="text-xs text-slate-400">No completed events found.</p>
+ </div>`;
+ } else {
+ completedList.forEach(item => {
+ completedContainer.appendChild(createEventElement(item));
+ });
+ }
+ }
+
+  function createEventElement(item) {
+    const eventDateObj = new Date(item.eventDate);
+    const dateFormatted = eventDateObj.toLocaleDateString([], {month: 'short', day: 'numeric', year: 'numeric'});
+    const timeFormatted = item.eventTime || '';
+    const dateTimeDisplay = timeFormatted ? `${dateFormatted} at ${timeFormatted}` : dateFormatted;
+   
+    const status = item.status || 'coming';
+    const statusBadge = getStatusBadgeHtml(status);
+    const verifiedBadge = item.verified ? `<svg class="w-4 h-4 text-blue-500 inline ml-1" fill="currentColor" viewBox="0 0 20 20" title="Verified Event"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>` : '';
+   
+    let verificationActionsHtml = '';
+    let verificationPanelHtml = '';
+   
+    if (item.verificationStatus === 'PENDING') {
+      verificationActionsHtml = `
+        <span class="inline-flex items-center px-2.5 py-1 text-[9px] font-bold bg-amber-100 text-amber-800 border-[2px] border-ink rounded-lg shadow-retro-sm label-stamp">Pending Review</span>
+      `;
+      verificationPanelHtml = `
+        <div class="mt-2.5 p-4 bg-surface-variant/35 border border-ink border-[3px] rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-retro-sm">
+          <div class="flex items-center gap-3">
+            <span class="font-bold text-on-background text-[10px] uppercase tracking-wide label-stamp">Verification Document:</span>
+            <div class="relative group cursor-pointer border border-ink border-[3px] rounded-lg overflow-hidden h-12 w-20 shadow-retro-sm" onclick="openDocumentViewerModal('${item.verificationCertificateUrl}', '${item.eventName.replace(/'/g, "\\'")}')">
+              <img src="${item.verificationCertificateUrl}" class="h-full w-full object-cover group-hover:scale-110 transition-transform duration-300">
+              <div class="absolute inset-0 bg-ink/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <span class="text-white text-[10px] font-extrabold uppercase label-stamp">Zoom</span>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 self-end sm:self-center">
+            <button onclick="handleVerification('${item.id}', 'APPROVED')" class="px-4 py-2 bg-emerald-500 text-white font-extrabold rounded-lg border border-ink border-[3px] shadow-retro-sm text-[10px] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all flex items-center gap-1 uppercase tracking-wider">
+              Approve
+            </button>
+            <button onclick="handleVerification('${item.id}', 'REJECTED')" class="px-4 py-2 bg-rose-500 text-white font-extrabold rounded-lg border border-ink border-[3px] shadow-retro-sm text-[10px] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all flex items-center gap-1 uppercase tracking-wider">
+              Reject
+            </button>
+          </div>
+        </div>
+      `;
+    } else if (item.verificationStatus === 'APPROVED') {
+      verificationActionsHtml = `
+        <span class="inline-flex items-center px-2.5 py-1 text-[9px] font-bold bg-emerald-100 text-emerald-800 border-[2px] border-ink rounded-lg shadow-retro-sm label-stamp">Verified</span>
+        <button onclick="handleVerification('${item.id}', 'REJECTED')" class="px-2 py-1 bg-rose-100 hover:bg-rose-200 text-rose-700 border-[2px] border-ink rounded-lg transition-all text-[9px] font-extrabold uppercase label-stamp animate-pulse" title="Revoke Verification">
+          Revoke
+        </button>
+      `;
+    } else if (item.verificationStatus === 'REJECTED') {
+      verificationActionsHtml = `
+        <span class="inline-flex items-center px-2.5 py-1 text-[9px] font-bold bg-rose-100 text-rose-800 border-[2px] border-ink rounded-lg shadow-retro-sm label-stamp">Rejected</span>
+      `;
+    } else {
+      verificationActionsHtml = `
+        <span class="text-[9px] text-on-surface-variant/50 font-bold italic label-stamp">Not Applied</span>
+      `;
+    }
+ 
+    const element = document.createElement('div');
+    element.className = "flex flex-col p-4 bg-surface border-ink border-[3px] rounded-2xl shadow-retro hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-retro-hover transition-all group gap-4 select-text";
+    element.innerHTML = `
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div class="space-y-1 select-text">
+        <div class="flex items-center gap-2 flex-wrap">
+          <h4 class="font-extrabold text-on-background text-sm flex items-center">${item.eventName}${verifiedBadge}</h4>
+          ${statusBadge}
+        </div>
+        <div class="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[10px] text-on-surface-variant font-bold label-stamp">
+          <span class="flex items-center">
+            <svg class="h-3 w-3 mr-1 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            ${dateTimeDisplay}
+          </span>
+          <span class="flex items-center">
+            <svg class="h-3 w-3 mr-1 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            ${item.location}
+          </span>
+        </div>
+      </div>
+      <div class="flex items-center space-x-2 self-end sm:self-center">
+        ${verificationActionsHtml}
+        <button onclick="editEvent('${item.id}')" class="px-3 py-1.5 btn-retro bg-surface text-on-background text-xs font-bold rounded-lg" title="Edit Event">
+          Edit
+        </button>
+        <button onclick="confirmDeleteEvent('${item.id}')" class="px-3 py-1.5 btn-retro bg-rose-500 text-white text-xs font-bold rounded-lg" title="Delete Event">
+          Delete
+        </button>
+      </div>
+    </div>
+    ${verificationPanelHtml}
+    `;
+    return element;
+  }
+
+ function filterEvents() {
+ const query = document.getElementById('eventSearch').value.toLowerCase();
+ const filtered = eventsList.filter(e => 
+ e.eventName.toLowerCase().includes(query) ||
+ e.location.toLowerCase().includes(query) ||
+ e.eventType.toLowerCase().includes(query)
+ );
+ renderEventsList(filtered);
+ }
+
+ function editEvent(id) {
+ window.location.href = `edit_event_details.html?id=${id}`;
+ }
+
+ async function handleVerification(id, status) {
+    const token = localStorage.getItem('token');
+    try {
+      const response = await fetch(`${EVENTS_API_URL}/${id}/verify?status=${status}`, {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (response.ok) {
+        const updatedEvent = await response.json();
+        triggerToast('Updated', `Event verification status set to ${status}.`);
+        
+        // Seamlessly update local state
+        const index = eventsList.findIndex(e => e.id === id);
+        if (index !== -1) {
+          eventsList[index].verified = updatedEvent.verified;
+          eventsList[index].verificationStatus = updatedEvent.verificationStatus;
+          eventsList[index].verificationCertificateUrl = updatedEvent.verificationCertificateUrl;
+        }
+        // Re-render only events based on current tab/search
+        filterEvents(); 
+      } else {
+        triggerToast('Error', 'Failed to update event verification status.');
+      }
+    } catch (error) {
+      console.error("Error updating verification:", error);
+      triggerToast('Error', 'An error occurred while updating.');
+    }
+  }
+
+ function confirmDeleteEvent(id) {
+ showConfirmModal('Delete Event Record', 'Are you sure you want to permanently delete this event from the database?', () => {
+ deleteEventRecord(id);
+ });
+ }
+
+ async function deleteEventRecord(id) {
+ const token = localStorage.getItem('token');
+ try {
+ const response = await fetch(`${EVENTS_API_URL}/${id}`, {
+ method: 'DELETE',
+ headers: { 'Authorization': `Bearer ${token}` }
+ });
+
+ if (response.ok) {
+ triggerToast('Deleted', 'Event was successfully deleted.');
+ fetchData();
+ } else {
+ throw new Error('Deletion request failed');
+ }
+ } catch (error) {
+ alert(error.message);
+ }
+ }
+
+ // Render Users management table
+  function renderUsersTable(list) {
+    const tableBody = document.getElementById('usersTableBody');
+    const counter = document.getElementById('userCounter');
+    
+    counter.textContent = `${list.length} Users`;
+    tableBody.innerHTML = '';
+
+    if (list.length === 0) {
+      tableBody.innerHTML = `
+      <tr>
+        <td colspan="4" class="px-6 py-12 text-center text-on-surface-variant/60 font-bold">
+          No matching user account records.
+        </td>
+      </tr>`;
+      return;
+    }
+
+    list.forEach(u => {
+      const regDate = new Date(u.createdAt);
+      const regFormatted = regDate.toLocaleDateString(undefined, {month: 'short', day: 'numeric', year: 'numeric'});
+      
+      const profilePic = u.profilePictureUrl || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80';
+      
+      const statusBadge = u.blocked 
+        ? `<span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-extrabold bg-rose-100 text-rose-800 border-[2px] border-ink shadow-retro-sm label-stamp">🚫 Blocked</span>`
+        : `<span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-extrabold bg-emerald-100 text-emerald-800 border-[2px] border-ink shadow-retro-sm label-stamp">🟢 Active</span>`;
+
+      const row = document.createElement('tr');
+      row.className = "hover:bg-surface-variant/20 transition-all border-b border-ink/10 select-text";
+      row.innerHTML = `
+      <td class="px-6 py-4 flex items-center gap-3">
+        <img src="${profilePic}" alt="Profile" class="h-10 w-10 rounded-full border-[3px] border-ink object-cover shadow-retro-sm">
+        <div>
+          <p class="text-xs font-extrabold text-on-background leading-tight">${u.name}</p>
+          <p class="text-[10px] font-bold text-on-surface-variant/60">${u.email}</p>
+        </div>
+      </td>
+
+      <td class="px-6 py-4 font-bold text-on-surface-variant">${regFormatted}</td>
+      <td class="px-6 py-4">${statusBadge}</td>
+      <td class="px-6 py-4 text-right space-x-2">
+        <button onclick="confirmBlockUser('${u.id}', ${u.blocked})" class="px-3 py-1.5 btn-retro text-[10px] font-extrabold rounded-lg ${u.blocked ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-white'}">
+          ${u.blocked ? 'Unblock' : 'Block'}
+        </button>
+        <button onclick="confirmDeleteUser('${u.id}')" class="px-3 py-1.5 btn-retro text-[10px] font-extrabold rounded-lg bg-rose-500 text-white">
+          Delete
+        </button>
+      </td>
+      `;
+      tableBody.appendChild(row);
+    });
+  }
+
+ function filterUsers() {
+ const query = document.getElementById('userSearch').value.toLowerCase();
+ const filtered = usersList.filter(u => 
+ u.name.toLowerCase().includes(query) ||
+ u.email.toLowerCase().includes(query)
+ );
+ renderUsersTable(filtered);
+ }
+
+ function confirmBlockUser(id, currentlyBlocked) {
+ const title = currentlyBlocked ? 'Unblock User Account' : 'Block User Account';
+ const msg = currentlyBlocked 
+ ? 'Are you sure you want to unblock this user account and restore their login access?' 
+ : 'Are you sure you want to block this user account? Blocked users will not be allowed to log in.';
+ 
+ showConfirmModal(title, msg, () => {
+ toggleBlockUserRecord(id);
+ });
+ }
+
+ async function toggleBlockUserRecord(id) {
+ const token = localStorage.getItem('token');
+ try {
+ const response = await fetch(`${USERS_API_URL}/${id}/block`, {
+ method: 'PUT',
+ headers: { 'Authorization': `Bearer ${token}` }
+ });
+
+ if (response.ok) {
+ triggerToast('Updated', 'User status was successfully updated.');
+ fetchData();
+ } else {
+ throw new Error('Failed to update status');
+ }
+ } catch (error) {
+ alert(error.message);
+ }
+ }
+
+ function confirmDeleteUser(id) {
+ showConfirmModal('Delete User Account', 'Are you sure you want to permanently delete this user account? This cannot be undone.', () => {
+ deleteUserRecord(id);
+ });
+ }
+
+ async function deleteUserRecord(id) {
+ const token = localStorage.getItem('token');
+ try {
+ const response = await fetch(`${USERS_API_URL}/${id}`, {
+ method: 'DELETE',
+ headers: { 'Authorization': `Bearer ${token}` }
+ });
+
+ if (response.ok) {
+ triggerToast('Deleted', 'User account was deleted.');
+ fetchData();
+ } else {
+ throw new Error('Failed to delete account');
+ }
+ } catch (error) {
+ alert(error.message);
+ }
+ }
+
+  let currentFeedbackTab = 'website';
+
+   function switchFeedbackTab(tab) {
+     currentFeedbackTab = tab;
+     
+     const tabWebsiteBtn = document.getElementById('tabWebsiteFeedbackBtn');
+     const tabReportsBtn = document.getElementById('tabEventReportsBtn');
+     const tabApplicantReportsBtn = document.getElementById('tabApplicantReportsBtn');
+     const websiteContainer = document.getElementById('websiteFeedbackContainer');
+     const reportsContainer = document.getElementById('eventReportsContainer');
+     const applicantReportsContainer = document.getElementById('applicantReportsContainer');
+     
+     const defaultClass = "px-4 py-2 btn-retro text-xs font-bold rounded-xl bg-surface text-on-surface-variant hover:bg-surface-variant/30";
+     const activeClass = "px-4 py-2 btn-retro text-xs font-bold rounded-xl bg-primary text-white";
+     
+     tabWebsiteBtn.className = defaultClass;
+     tabReportsBtn.className = defaultClass;
+     tabApplicantReportsBtn.className = defaultClass;
+     
+     websiteContainer.classList.add('hidden');
+     reportsContainer.classList.add('hidden');
+     applicantReportsContainer.classList.add('hidden');
+     
+     if (tab === 'website') {
+       tabWebsiteBtn.className = activeClass;
+       websiteContainer.classList.remove('hidden');
+     } else if (tab === 'reports') {
+       tabReportsBtn.className = activeClass;
+       reportsContainer.classList.remove('hidden');
+     } else if (tab === 'applicant-reports') {
+       tabApplicantReportsBtn.className = activeClass;
+       applicantReportsContainer.classList.remove('hidden');
+     }
+   }
+
+   // Render Feedbacks panel in grid layout
+   function renderFeedbacks(list) {
+     const websiteContainer = document.getElementById('websiteFeedbackContainer');
+     const websiteCounterTab = document.getElementById('websiteFeedbackTabCount');
+     const counter = document.getElementById('feedbackCounter');
+     
+     const websiteReviews = list.filter(item => item.eventId === 'website');
+
+     websiteCounterTab.textContent = websiteReviews.length;
+     if (counter) {
+       counter.textContent = `${websiteReviews.length + reportsList.length + applicantReportsList.length} Logs`;
+     }
+
+     websiteContainer.innerHTML = '';
+
+     if (websiteReviews.length === 0) {
+       websiteContainer.innerHTML = `
+         <div class="col-span-full text-center py-12 border-[3px] border-ink bg-background rounded-xl">
+           <p class="text-xs text-on-surface-variant/60 font-bold">No website feedback received yet.</p>
+         </div>`;
+     } else {
+       websiteReviews.forEach(item => {
+         websiteContainer.appendChild(createFeedbackCard(item));
+       });
+     }
+   }
+
+   function createFeedbackCard(item) {
+     const starsHtml = '⭐'.repeat(item.rating);
+     const dateObj = new Date(item.createdAt);
+     const formattedDate = dateObj.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+
+     const card = document.createElement('div');
+     card.className = "bg-surface border-ink border-[3px] p-5 rounded-xl flex flex-col justify-between shadow-retro hover:shadow-retro-hover hover:translate-x-[2px] hover:translate-y-[2px] transition-all select-text text-xs";
+     
+     const isWebsite = item.eventId === 'website';
+     const locationLabel = isWebsite ? 'General Website Review' : `Event Name: <strong class="text-on-surface-variant font-semibold">${item.eventName}</strong>`;
+
+     card.innerHTML = `
+       <div class="space-y-2">
+         <div class="flex items-center text-sm font-bold text-slate-800">
+           ${starsHtml}
+         </div>
+         <h4 class="font-extrabold text-on-background text-xs leading-none">From: ${item.userName}</h4>
+         <p class="text-[11px] text-on-surface-variant leading-relaxed italic">"${item.comment}"</p>
+       </div>
+       <div class="mt-3 pt-3 border-t-[3px] border-ink flex justify-between text-[9px] text-on-surface-variant/60 font-bold label-stamp">
+         <span>${locationLabel}</span>
+         <span>Date: ${formattedDate}</span>
+       </div>
+     `;
+     return card;
+   }
+
+   function renderReports(evtReports, appReports) {
+     const reportsContainer = document.getElementById('eventReportsContainer');
+     const applicantReportsContainer = document.getElementById('applicantReportsContainer');
+     const reportsCounterTab = document.getElementById('eventReportsTabCount');
+     const applicantReportsCounterTab = document.getElementById('applicantReportsTabCount');
+     const counter = document.getElementById('feedbackCounter');
+     
+     if (reportsCounterTab) {
+       reportsCounterTab.textContent = evtReports.length;
+     }
+     if (applicantReportsCounterTab) {
+       applicantReportsCounterTab.textContent = appReports.length;
+     }
+     if (counter) {
+       const websiteFeedbackCount = feedbacksList.filter(item => item.eventId === 'website').length;
+       counter.textContent = `${websiteFeedbackCount + evtReports.length + appReports.length} Logs`;
+     }
+     
+     reportsContainer.innerHTML = '';
+     applicantReportsContainer.innerHTML = '';
+     
+     if (evtReports.length === 0) {
+       reportsContainer.innerHTML = `
+         <div class="col-span-full text-center py-12 border-[3px] border-ink bg-background rounded-xl">
+           <p class="text-xs text-on-surface-variant/60 font-bold">No event reports received yet.</p>
+         </div>`;
+     } else {
+       evtReports.forEach(item => {
+         reportsContainer.appendChild(createReportCard(item, 'EVENT'));
+       });
+     }
+
+     if (appReports.length === 0) {
+       applicantReportsContainer.innerHTML = `
+         <div class="col-span-full text-center py-12 border-[3px] border-ink bg-background rounded-xl">
+           <p class="text-xs text-on-surface-variant/60 font-bold">No applicant reports received yet.</p>
+         </div>`;
+     } else {
+       appReports.forEach(item => {
+         applicantReportsContainer.appendChild(createReportCard(item, 'APPLICANT'));
+       });
+     }
+   }
+
+   function createReportCard(item, type) {
+     const dateObj = new Date(item.createdAt);
+     const formattedDate = dateObj.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+     
+     const card = document.createElement('div');
+     card.className = "bg-surface border-ink border-[3px] p-5 rounded-xl flex flex-col justify-between shadow-retro hover:shadow-retro-hover hover:translate-x-[2px] hover:translate-y-[2px] transition-all select-text text-xs";
+     
+     let actionsHtml = '';
+     let targetHtml = '';
+     let screenshotHtml = '';
+     let reporterLabel = 'Reporter';
+     let reporterName = 'Anonymous';
+
+     if (type === 'EVENT') {
+         actionsHtml = `<button onclick="confirmDeleteReportedEvent('${item.eventId}')" class="px-2.5 py-1.5 btn-retro text-[9px] font-extrabold bg-rose-500 text-white rounded-lg transition-all" title="Delete Reported Event">Delete Event</button>`;
+         targetHtml = `Event: <a href="event_details.html?id=${item.eventId}" target="_blank" class="text-indigo-600 hover:underline font-semibold">${item.eventName}</a>`;
+         reporterName = item.userName || 'Anonymous';
+     } else {
+         const applicantUser = usersList.find(u => u.email === item.applicantEmail);
+         const applicantId = applicantUser ? applicantUser.id : 'N/A';
+         
+         if (applicantUser) {
+             const isBlocked = applicantUser.blocked;
+             actionsHtml = `<button onclick="confirmBlockUser('${applicantId}', ${isBlocked})" class="px-2.5 py-1.5 btn-retro text-[9px] font-extrabold rounded-lg transition-all ${isBlocked ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-white'}" title="${isBlocked ? 'Unblock Applicant' : 'Block Applicant'}">${isBlocked ? 'Unblock' : 'Block'} User</button>`;
+         }
+         
+         targetHtml = `Applicant Email: <strong class="text-indigo-600 font-semibold">${item.applicantEmail || 'Unknown'}</strong> (AppID: ${item.applicationId})<br><span class="text-on-surface-variant/70 mt-0.5 block">Applicant ID: ${applicantId}</span>`;
+         reporterLabel = 'Organizer';
+         reporterName = item.organizerId || 'Unknown';
+     }
+
+     if (item.screenshotUrl) {
+         screenshotHtml = `<div class="mt-2"><a href="${item.screenshotUrl}" target="_blank"><img src="${item.screenshotUrl}" alt="Report Screenshot" class="mt-2 rounded-lg border-[3px] border-ink shadow-retro-sm object-cover max-h-32 w-full"></a></div>`;
+     }
+
+     card.innerHTML = `
+       <div class="space-y-3">
+         <div class="flex items-center justify-between">
+           <span class="inline-flex items-center px-2.5 py-1 text-[9px] font-extrabold bg-rose-100 text-rose-800 border-[2px] border-ink rounded-lg label-stamp">🚨 ${type} REPORT</span>
+           ${actionsHtml}
+         </div>
+         <h4 class="font-extrabold text-on-background text-xs leading-none">By: ${reporterName} (${reporterLabel})</h4>
+         <p class="text-[11px] text-rose-800 leading-relaxed bg-rose-50 p-3 border-[2px] border-ink rounded-lg font-bold">"${item.details}"</p>
+         ${screenshotHtml}
+       </div>
+       <div class="mt-3 pt-3 border-t-[3px] border-ink flex justify-between text-[9px] text-on-surface-variant/60 font-bold label-stamp">
+         <span>${targetHtml}</span>
+         <span>Date: ${formattedDate}</span>
+       </div>
+     `;
+     return card;
+   }
+  
+  function confirmDeleteReportedEvent(eventId) {
+    showConfirmModal('Delete Reported Event', 'Are you sure you want to permanently delete this reported event? This will remove the event and cannot be undone.', () => {
+      deleteEventRecord(eventId);
+    });
+  }
+
+ // Custom Confirmation Modal Actions
+ function showConfirmModal(title, message, confirmCallback) {
+ document.getElementById('confirmModalTitle').textContent = title;
+ document.getElementById('confirmModalMessage').textContent = message;
+ 
+ const modal = document.getElementById('confirmModal');
+ modal.classList.remove('hidden');
+ 
+ onConfirmAction = () => {
+ confirmCallback();
+ closeConfirmModal();
+ };
+ 
+ document.getElementById('confirmModalBtn').onclick = onConfirmAction;
+ }
+
+ function closeConfirmModal() {
+ document.getElementById('confirmModal').classList.add('hidden');
+ onConfirmAction = null;
+ }
+
+ // Toast Handler Component
+ function triggerToast(title, message) {
+ const toast = document.getElementById('toastNotification');
+ document.getElementById('toastTitle').textContent = title;
+ document.getElementById('toastMessage').textContent = message;
+
+ toast.classList.remove('translate-x-full', 'opacity-0');
+ toast.classList.add('translate-x-0', 'opacity-100');
+
+ setTimeout(() => {
+ toast.classList.add('translate-x-full', 'opacity-0');
+ toast.classList.remove('translate-x-0', 'opacity-100');
+ }, 3000);
+  }
+
+  function openDocumentViewerModal(imageUrl, eventName) {
+    document.getElementById('docViewerEventName').textContent = eventName;
+    document.getElementById('docViewerImage').src = imageUrl;
+    document.getElementById('docViewerOpenBtn').href = imageUrl;
+    document.getElementById('documentViewerModal').classList.remove('hidden');
+  }
+
+  function closeDocumentViewerModal() {
+    document.getElementById('documentViewerModal').classList.add('hidden');
+  }
+  </script>
+
+  <!-- Document Viewer Modal -->
+  <div id="documentViewerModal" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true">
+    <div class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onclick="closeDocumentViewerModal()"></div>
+    <div class="fixed inset-0 z-10 w-screen overflow-y-auto flex items-center justify-center p-4">
+      <div class="relative bg-surface border border-ink border-[3px] p-6 w-full max-w-2xl rounded-2xl shadow-retro flex flex-col space-y-4 font-sans text-sm">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+          <h3 class="text-base font-extrabold text-on-background uppercase tracking-wide">
+            Verification Document - <span id="docViewerEventName" class="text-primary font-bold"></span>
+          </h3>
+          <button onclick="closeDocumentViewerModal()" class="text-slate-400 hover:text-slate-600">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div class="flex justify-center bg-background p-4 border border-ink border-[3px] rounded-xl overflow-hidden max-h-[70vh]">
+          <img id="docViewerImage" src="" alt="Verification Certificate" class="object-contain max-w-full max-h-[50vh] rounded-lg">
+        </div>
+        <div class="flex justify-end space-x-3 pt-2">
+          <a id="docViewerOpenBtn" href="" target="_blank" class="px-4 py-2 btn-retro border border-ink border-[3px] hover:bg-background text-indigo-600 text-xs font-bold rounded-xl transition-all shadow-retro flex items-center justify-center">
+            Open Full Size
+          </a>
+          <button onclick="closeDocumentViewerModal()" class="px-4 py-2 btn-retro border border-ink border-[3px] hover:bg-background text-on-surface-variant text-xs font-bold rounded-xl transition-all shadow-retro flex items-center justify-center">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
